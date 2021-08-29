@@ -16,6 +16,7 @@ public:
 	SuperPixelMask();
 	~SuperPixelMask();
 
+	Mat getSuperpixelSLICContours(int min_element_size, Mat input_image);
 	int CreateSLICMask(bool use_video_capture_flag, std::string img_file_path);
 
 	void trackbarChanged(int pos, void* data);
