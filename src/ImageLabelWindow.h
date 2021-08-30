@@ -13,6 +13,7 @@
 #include <wx/tglbtn.h>
 #include "DrawLine.h"
 #include "PolygonShape.h"
+#include "SuperPixelMask.h"
 
 #define USE_XPM_BITMAPS 1
 

@@ -126,18 +126,21 @@ void ImageLabelWindow::render(wxDC&  dc)
 
 	if (neww != w || newh != h)
 	{
-		resized = wxBitmap(image.Scale(neww, newh /*, wxIMAGE_QUALITY_HIGH */));
-		w = neww;
-		h = newh;
-		dc.DrawBitmap(resized, 0, 0, false);
-
 		/*
 		cv::ximgproc::createSuperpixelSLIC(InputArray  	image,
 			int  	algorithm = SLICO,
 			int  	region_size = 10,
 			float  	ruler = 10.0f
 		)
+		SuperPixelMask *spm;
+		spm = new SuperPixelMask();
+		spm->getSuperpixelSLICContours(100, image);
 		*/
+		resized = wxBitmap(image.Scale(neww, newh /*, wxIMAGE_QUALITY_HIGH */));
+		w = neww;
+		h = newh;
+
+		dc.DrawBitmap(resized, 0, 0, false);
 	}
 	else {
 		dc.DrawBitmap(resized, 0, 0, false);

@@ -5,7 +5,7 @@
 
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgcodecs.hpp>w
 #include <opencv2/core/utility.hpp>
 
 #include <opencv2/ximgproc.hpp>
@@ -85,9 +85,9 @@ bool MyApp::OnInit()
 		
 	//char* arg = new char();
 	//cv::ximgproc::mainSLIC(0, &arg);
-	SuperPixelMask *spm;
-	spm = new SuperPixelMask();
-	spm->CreateSLICMask(false, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
+	//SuperPixelMask *spm;
+	//spm = new SuperPixelMask();
+	//spm->CreateSLICMask(false, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
 	//spm->CreateSEEDSorLSCMask(1, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
 	//spm->CreateSEEDSorLSCMask(0, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\road_tiny.jpg");
 	

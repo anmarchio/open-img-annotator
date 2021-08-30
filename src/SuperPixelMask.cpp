@@ -4,6 +4,43 @@
 using namespace cv;
 using namespace std;
 
+
+wxImage SuperPixelMask::ConvertMatToWxImage(Mat &img) {
+	Mat im2;
+
+	if (img.channels() == 1) {
+		cvtColor(img, im2, COLOR_GRAY2RGB);
+	}
+	else if (img.channels() == 4)
+	{
+		cvtColor(img, im2, COLOR_BGRA2RGB);
+	}
+	else
+	{
+		cvtColor(img, im2, COLOR_BGR2RGB);
+	}
+
+	long imsize = im2.rows*im2.cols*im2.channels();
+
+	wxImage wx(im2.cols, im2.rows, (unsigned char*)malloc(imsize), false);
+
+	unsigned char* s = im2.data;
+	unsigned char* d = wx.GetData();
+
+	for (long i = 0; i < imsize; i++) {
+		d[i] = s[i];
+	}
+	return wx;
+}
+
+Mat SuperPixelMask::ConvertWxImageToMat(wxImage &wx) {
+	Mat im2(Size(wx.GetWidth(), wx.GetHeight()), CV_8UC3, wx.GetData());
+
+	cvtColor(im2, im2, COLOR_RGB2BGR);
+
+	return im2;
+}
+
 static const char* window_name = "SLIC Superpixels";
 
 static const char* keys =
@@ -19,39 +56,43 @@ SuperPixelMask::SuperPixelMask() {
 std::string window_name_str = "SLIC";
 
 
-Mat SuperPixelMask::getSuperpixelSLICContours(int min_element_size, Mat input_image)
+void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image)
 {	
 	const int algorithm = 0;
-	const int region_size = 100;
+	const int region_size = 10;
 	const int ruler = 30;
 	const int num_iterations = 5;
 	
+	/*
+		Missing: int* to Mat conversion
+	*/
+	Mat matInputImage = ConvertWxImageToMat(input_image);
 	Mat result, mask;
 
 	Mat converted;
-	cvtColor(input_image, converted, COLOR_BGR2HSV);
+	cvtColor(matInputImage, converted, COLOR_BGR2HSV);
 
 	Ptr<cv::ximgproc::SuperpixelSLIC> slic = cv::ximgproc::createSuperpixelSLIC(converted, algorithm + cv::ximgproc::SLIC, region_size, float(ruler));
 	slic->iterate(num_iterations);
 	slic->enforceLabelConnectivity(min_element_size);
-
 	int numberOfSuperpixels = slic->getNumberOfSuperpixels();
+	
 	
 	// get the contours for displaying
 	slic->getLabelContourMask(mask, true);
-	result.setTo(Scalar(0, 0, 255), mask);	
+	result.setTo(Scalar(0, 0, 255), mask);
+
 	/*
 	------------------------------------------------------------------
 		NOTE: At this point, we may want to think about
 		converting contours to an 'array of segments of wxPoints'.
-		
-		(!) For performance pursposes, we also may want to limit 
+
+		(!) For performance pursposes, we also may want to limit
 		the maximum number of segments & wxPoints to keep the application
 		responsive at all times.
 	------------------------------------------------------------------
 	*/
-	// return contour points from polygon mask
-	return result;
+	input_image = ConvertMatToWxImage(result);
 }
 
 int SuperPixelMask::CreateSLICMask(bool use_video_capture_flag, std::string img_file_path)

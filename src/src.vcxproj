@@ -166,6 +166,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PolygonShape.h" />
     <ClInclude Include="SuperPixelMask.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DrawLine.cpp" />
@@ -179,7 +180,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PolygonShape.cpp" />
-    <ClCompile Include="src.cpp" />
     <ClCompile Include="SuperPixelMask.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

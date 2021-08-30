@@ -36,12 +36,12 @@
     <ClInclude Include="SuperPixelMask.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="DrawLine.cpp">
