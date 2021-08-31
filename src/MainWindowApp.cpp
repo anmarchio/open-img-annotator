@@ -99,7 +99,7 @@ It will immediately create the ImageLabelWindow frame for faster coding.
 */
 void MyApp::OnTestImageLabeller()
 {
-	const std::string path = "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric.jpg";
+	const std::string path = "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg";
 
 	// Image Labeller Panel
 	wxDialog *frame;

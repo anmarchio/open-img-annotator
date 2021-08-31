@@ -12,6 +12,7 @@ public:
 	wxPointList* points;
 	int size;
 
+	PolygonShape();
 	PolygonShape(wxPointList* points, int number);
 	PolygonShape(std::vector<DrawLine> lines);
 	void insertPoint(wxPoint pt);

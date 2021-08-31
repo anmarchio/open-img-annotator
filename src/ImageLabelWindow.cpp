@@ -79,6 +79,8 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 	toolBar->Realize();
 }
 
+const int minElementSize = 100;
+
 void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 {
 	// depending on your system you may need to look at double-buffered dcs
@@ -108,6 +110,16 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 		dc.DrawPolygon(polygons[i].points, 0, 0, wxWINDING_RULE);
 	}	
 
+	// draw superpixel labels
+	SuperPixelMask *spm = new SuperPixelMask();
+	std::vector<PolygonShape> superpixelLabels;
+	spm->getSuperpixelSLICContours(minElementSize, image, superpixelLabels);
+	for (size_t i = 0; i < superpixelLabels.size(); i++)
+	{
+		dc.SetBrush(*wxGREEN_BRUSH); // green filling
+		dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
+	}
+
 	if (GetCapture() == this) {
 		DrawLine(edgePoint, pos).Draw(dc);
 	}
@@ -126,16 +138,6 @@ void ImageLabelWindow::render(wxDC&  dc)
 
 	if (neww != w || newh != h)
 	{
-		/*
-		cv::ximgproc::createSuperpixelSLIC(InputArray  	image,
-			int  	algorithm = SLICO,
-			int  	region_size = 10,
-			float  	ruler = 10.0f
-		)
-		SuperPixelMask *spm;
-		spm = new SuperPixelMask();
-		spm->getSuperpixelSLICContours(100, image);
-		*/
 		resized = wxBitmap(image.Scale(neww, newh /*, wxIMAGE_QUALITY_HIGH */));
 		w = neww;
 		h = newh;

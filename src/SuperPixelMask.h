@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "utils.h"
+#include "PolygonShape.h"
 
 class SuperPixelMask
 {
@@ -21,7 +22,7 @@ public:
 	SuperPixelMask();
 	~SuperPixelMask();
 
-	void getSuperpixelSLICContours(int min_element_size, wxImage &input_image);
+	void getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape> superpixelLabels);
 	int CreateSLICMask(bool use_video_capture_flag, std::string img_file_path);
 
 	void trackbarChanged(int pos, void* data);

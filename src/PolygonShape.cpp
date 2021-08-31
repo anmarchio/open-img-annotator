@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "PolygonShape.h"
 
+PolygonShape::PolygonShape()
+{
+	points = new wxPointList();
+	size = 0;
+};
+
 PolygonShape::PolygonShape(wxPointList* pts, int number)
 {
 	points = new wxPointList();

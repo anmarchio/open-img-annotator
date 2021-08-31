@@ -56,10 +56,10 @@ SuperPixelMask::SuperPixelMask() {
 std::string window_name_str = "SLIC";
 
 
-void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image)
+void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape> superpixelLabels)
 {	
 	const int algorithm = 0;
-	const int region_size = 10;
+	const int region_size = 50;
 	const int ruler = 30;
 	const int num_iterations = 5;
 	
@@ -80,8 +80,8 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 	
 	// get the contours for displaying
 	slic->getLabelContourMask(mask, true);
-	result.setTo(Scalar(0, 0, 255), mask);
-
+	Mat labels;
+	slic->getLabels(labels);	
 	/*
 	------------------------------------------------------------------
 		NOTE: At this point, we may want to think about
@@ -91,8 +91,25 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 		the maximum number of segments & wxPoints to keep the application
 		responsive at all times.
 	------------------------------------------------------------------
-	*/
-	input_image = ConvertMatToWxImage(result);
+	*/    
+	Mat hierarchy;
+	vector<vector<Point>> contours;
+	findContours(mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	//input_image = ConvertMatToWxImage(result);
+	for (int i = 0; i < contours.size(); i++)
+	{
+		PolygonShape poly;
+		for (int j = 0; j < contours[i].size(); j++)
+		{
+			wxPoint pt;
+			pt.x = contours[i][j].x;
+			pt.y = contours[i][j].y;
+			poly.insertPoint(pt);
+		}
+		std::vector<PolygonShape>::iterator it = superpixelLabels.begin();
+		superpixelLabels.insert(it, poly);
+	}
+	cout << superpixelLabels.size();
 }
 
 int SuperPixelMask::CreateSLICMask(bool use_video_capture_flag, std::string img_file_path)
