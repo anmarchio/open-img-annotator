@@ -7,6 +7,7 @@ BEGIN_EVENT_TABLE(ImageLabelWindow, wxPanel)
 	EVT_MENU(wxID_OPEN, ImageLabelWindow::OnOpen)
 	EVT_MENU(wxID_SAVE, ImageLabelWindow::OnSave)
 	EVT_MENU(wxID_HELP, ImageLabelWindow::OnAbout)
+	EVT_MENU(wxID_ANY, ImageLabelWindow::OnComputeSuperpixels)
 	EVT_MENU(wxID_EXIT, ImageLabelWindow::OnQuit)
 	EVT_PAINT(ImageLabelWindow::paintEvent)
 	//Size event
@@ -15,19 +16,21 @@ END_EVENT_TABLE()
 
 ImageLabelWindow::ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format) : wxPanel(parent)
 {
+	image.LoadFile(file, format);
+	w = -1;
+	h = -1;
+
+	parent->SetSize(image.GetWidth(), image.GetHeight());
 
 	wxPanel* m_panel = new wxPanel(this, wxID_ANY);
 	RecreateToolbar(m_panel);
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 	m_panel->SetSizer(sizer); 
-	m_panel->SetSize(wxSize(800, 40));
+	m_panel->SetSize(wxSize(image.GetWidth(), 40));
 
 	parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
 	
-	image.LoadFile(file, format);
-	w = -1;
-	h = -1;
-
+	
 	trackMouseMovement = false;
 	maxDistanceToStartPoint = 5;
 	Show();
@@ -74,12 +77,11 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 	toolBar->AddTool(wxID_OPEN, "Open", toolBarBitmaps[Tool_open], "Open", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_SAVE, "Save", toolBarBitmaps[Tool_save], "Save As", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_HELP, "About", toolBarBitmaps[Tool_help], "About", wxITEM_NORMAL);
+	toolBar->AddTool(wxID_ANY, "Superpixels", toolBarBitmaps[Tool_help], "Create Superpixel", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_EXIT, "Exit", toolBarBitmaps[Tool_exit], "Exit application", wxITEM_NORMAL);
 
 	toolBar->Realize();
 }
-
-const int minElementSize = 100;
 
 void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 {
@@ -102,24 +104,26 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 	{
 		lines[i].Draw(dc);
 	}
-	
+
+	// draw superpixel labels
+	for (size_t i = 0; i < superpixelLabels.size(); i++)
+	{
+		dc.SetBrush(*wxGREEN_BRUSH); // green filling
+		//dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
+		for (size_t j = 0; j < superpixelLabels[0].size; j++)
+		{
+			wxPoint* pt = superpixelLabels[0].points->Item(j)->GetData();
+			dc.DrawPoint((wxCoord)pt->x, (wxCoord)pt->y);
+		}
+	}
+
 	// draw all polygons
 	for (size_t i = 0; i < polygons.size(); i++)
 	{
 		dc.SetBrush(*wxGREEN_BRUSH); // green filling
 		dc.DrawPolygon(polygons[i].points, 0, 0, wxWINDING_RULE);
 	}	
-
-	// draw superpixel labels
-	SuperPixelMask *spm = new SuperPixelMask();
-	std::vector<PolygonShape> superpixelLabels;
-	spm->getSuperpixelSLICContours(minElementSize, image, superpixelLabels);
-	for (size_t i = 0; i < superpixelLabels.size(); i++)
-	{
-		dc.SetBrush(*wxGREEN_BRUSH); // green filling
-		dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
-	}
-
+	
 	if (GetCapture() == this) {
 		DrawLine(edgePoint, pos).Draw(dc);
 	}
@@ -277,11 +281,25 @@ void ImageLabelWindow::OnSave(wxCommandEvent& event)
 
 void ImageLabelWindow::OnAbout(wxCommandEvent& event)
 {
-	(void)wxMessageBox("Image label editor using polygons", "About Label Editor");
+	(void)wxMessageBox("Open Img Annotator is a tiny label editor for efficient and simple image annotation using polygons and superpixels", "About Open Img Annotator");
 }
 
 void ImageLabelWindow::OnQuit(wxCommandEvent& event)
 {
-	//exit(3); // hard exit
+	//exit(3); 
+	// hard exit
 	Close(true);
+}
+
+/////////////////////////////
+/// Superpixel Events
+////////////////////////////
+const int minElementSize = 100;
+
+void ImageLabelWindow::OnComputeSuperpixels(wxCommandEvent& event)
+{
+	SuperPixelMask *spm = new SuperPixelMask();
+	spm->getSuperpixelSLICContours(minElementSize, image, &superpixelLabels);
+	std::cout << superpixelLabels.size();
+	Refresh();
 }

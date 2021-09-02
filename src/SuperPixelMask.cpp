@@ -4,7 +4,6 @@
 using namespace cv;
 using namespace std;
 
-
 wxImage SuperPixelMask::ConvertMatToWxImage(Mat &img) {
 	Mat im2;
 
@@ -33,7 +32,7 @@ wxImage SuperPixelMask::ConvertMatToWxImage(Mat &img) {
 	return wx;
 }
 
-Mat SuperPixelMask::ConvertWxImageToMat(wxImage &wx) {
+cv::Mat SuperPixelMask::ConvertWxImageToMat(wxImage &wx) {
 	Mat im2(Size(wx.GetWidth(), wx.GetHeight()), CV_8UC3, wx.GetData());
 
 	cvtColor(im2, im2, COLOR_RGB2BGR);
@@ -56,7 +55,7 @@ SuperPixelMask::SuperPixelMask() {
 std::string window_name_str = "SLIC";
 
 
-void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape> superpixelLabels)
+void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape>* superpixelLabels)
 {	
 	const int algorithm = 0;
 	const int region_size = 50;
@@ -67,7 +66,8 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 		Missing: int* to Mat conversion
 	*/
 	Mat matInputImage = ConvertWxImageToMat(input_image);
-	Mat result, mask;
+	Mat result = Mat::zeros(matInputImage.rows, matInputImage.cols, CV_8UC3);
+	Mat mask;
 
 	Mat converted;
 	cvtColor(matInputImage, converted, COLOR_BGR2HSV);
@@ -80,8 +80,8 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 	
 	// get the contours for displaying
 	slic->getLabelContourMask(mask, true);
-	Mat labels;
-	slic->getLabels(labels);	
+	Mat labels = Mat(matInputImage.rows, matInputImage.cols, CV_8U);
+	slic->getLabels(labels);
 	/*
 	------------------------------------------------------------------
 		NOTE: At this point, we may want to think about
@@ -94,65 +94,69 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 	*/    
 	Mat hierarchy;
 	vector<vector<Point>> contours;
-	findContours(mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	Mat superpixel_mask = labels == 1;
+	Mat dst;
+	threshold(superpixel_mask, dst, 128.0f, 255.0, CV_8U);
+	findContours(dst, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 	//input_image = ConvertMatToWxImage(result);
+	
+	/*
+	for (;;)
+	{
+		// Show OpenCV mask in window
+		Scalar color(0, 0, 255);
+		drawContours(result, contours, 0, color, LINE_8, 8, hierarchy);
+		//prepare a grey mask
+		//cv::cvtColor(contours[0], maskMat, COLOR_BGR2GRAY);
+		//threshold(maskMat, maskMat, 0, 255, THRESH_BINARY);
+		// use mask to crop original image
+		//result.copyTo(result, maskMat);
+		namedWindow(window_name, 0);
+		resizeWindow(window_name, cv::Size(matInputImage.cols, matInputImage.rows));
+		imshow(window_name, result);
+		int c = waitKey(1) & 0xff;
+		if (c == 'q' || c == 'Q' || c == 27)
+			break;
+	}
+	*/
+
+	// Fill superpixelLabels
 	for (int i = 0; i < contours.size(); i++)
 	{
-		PolygonShape poly;
+		PolygonShape shp;
 		for (int j = 0; j < contours[i].size(); j++)
 		{
-			wxPoint pt;
-			pt.x = contours[i][j].x;
-			pt.y = contours[i][j].y;
-			poly.insertPoint(pt);
+			wxPoint* pt = new wxPoint(
+				contours[i][j].x,
+				contours[i][j].y
+			);
+			if (pt->x < 0) pt->x = 0;
+			else if (pt->x > matInputImage.cols)
+			{
+				pt->x = matInputImage.cols;
+			}
+			if (pt->y < 0) pt->y = 0;
+			else if (pt->y > matInputImage.rows)
+			{
+				pt->y = matInputImage.rows;
+			}
+			
+			shp.insertPoint(*pt);
 		}
-		std::vector<PolygonShape>::iterator it = superpixelLabels.begin();
-		superpixelLabels.insert(it, poly);
+		superpixelLabels->push_back(shp);
 	}
-	cout << superpixelLabels.size();
+	int number = superpixelLabels->size();
+	cout << number;
 }
 
-int SuperPixelMask::CreateSLICMask(bool use_video_capture_flag, std::string img_file_path)
+void SuperPixelMask::DisplayImageWindow(int use_video_capture, cv::VideoCapture cap, cv::Mat input_image, int algorithm, int region_size, int ruler, int min_element_size, int num_iterations)
 {
-	//int capture = cmd.get<int>("camera");
-	int capture = 0;
-	//string img_file = cmd.get<string>("image");
-	string img_file = img_file_path;
-	//int algorithm = cmd.get<int>("algorithm");
-	int algorithm = 0;
-	int region_size = 100;
-	int ruler = 30;
-	int min_element_size = 100;
-	int num_iterations = 1;
-	//bool use_video_capture = img_file.empty();
-	bool use_video_capture = use_video_capture_flag;
-
-	VideoCapture cap;
-	Mat input_image;
-
-	if (use_video_capture)
-	{
-		if (!cap.open(capture))
-		{
-			cout << "Could not initialize capturing..." << capture << "\n";
-			return -1;
-		}
-	}
-	else
-	{
-		input_image = imread(img_file);
-		if (input_image.empty())
-		{
-			cout << "Could not open image..." << img_file << "\n";
-			return -1;
-		}
-	}
 	namedWindow(window_name, 0);
-	createTrackbar("Algorithm", window_name, &algorithm, 1, 0);
-	createTrackbar("Region size", window_name, &region_size, 200, 0);
-	createTrackbar("Ruler", window_name, &ruler, 100, 0);
-	createTrackbar("Connectivity", window_name, &min_element_size, 100, 0);
-	createTrackbar("Iterations", window_name, &num_iterations, 12, 0);
+	cv::createTrackbar("Algorithm", window_name, &algorithm, 1, 0);
+	cv::createTrackbar("Region size", window_name, &region_size, 200, 0);
+	cv::createTrackbar("Ruler", window_name, &ruler, 100, 0);
+	cv::createTrackbar("Connectivity", window_name, &min_element_size, 100, 0);
+	cv::createTrackbar("Iterations", window_name, &num_iterations, 12, 0);
 
 	Mat result, mask;
 	int display_mode = 0;
@@ -173,14 +177,14 @@ int SuperPixelMask::CreateSLICMask(bool use_video_capture_flag, std::string img_
 		cvtColor(frame, converted, COLOR_BGR2HSV);
 
 		double t = (double)getTickCount();
-		
+
 		Ptr<cv::ximgproc::SuperpixelSLIC> slic = cv::ximgproc::createSuperpixelSLIC(converted, algorithm + cv::ximgproc::SLIC, region_size, float(ruler));
 		slic->iterate(num_iterations);
 		if (min_element_size > 0)
 			slic->enforceLabelConnectivity(min_element_size);
 
 		t = ((double)getTickCount() - t) / getTickFrequency();
-		cout << "SLIC" << (algorithm ? 'O' : ' ')
+		std::cout << "SLIC" << (algorithm ? 'O' : ' ')
 			<< " segmentation took " << (int)(t * 1000)
 			<< " ms with " << slic->getNumberOfSuperpixels() << " superpixels" << endl;
 
@@ -218,6 +222,45 @@ int SuperPixelMask::CreateSLICMask(bool use_video_capture_flag, std::string img_
 		else if (c == ' ')
 			display_mode = (display_mode + 1) % 3;
 	}
+}
+
+int SuperPixelMask::CreateSLICMask(bool use_video_capture_flag, std::string img_file_path)
+{
+	//int capture = cmd.get<int>("camera");
+	int capture = 0;
+	//string img_file = cmd.get<string>("image");
+	string img_file = img_file_path;
+	//int algorithm = cmd.get<int>("algorithm");
+	int algorithm = 0;
+	int region_size = 100;
+	int ruler = 30;
+	int min_element_size = 100;
+	int num_iterations = 1;
+	//bool use_video_capture = img_file.empty();
+	bool use_video_capture = use_video_capture_flag;
+
+	VideoCapture cap;
+	Mat input_image;
+
+	if (use_video_capture)
+	{
+		if (!cap.open(capture))
+		{
+			std::cout << "Could not initialize capturing..." << capture << "\n";
+			return -1;
+		}
+	}
+	else
+	{
+		input_image = imread(img_file);
+		if (input_image.empty())
+		{
+			std::cout << "Could not open image..." << img_file << "\n";
+			return -1;
+		}
+	}
+	
+	DisplayImageWindow(use_video_capture, cap, input_image, algorithm, region_size, ruler, min_element_size, num_iterations);
 
 	return 0;
 }
@@ -237,7 +280,7 @@ int SuperPixelMask::CreateSEEDSorLSCMask(bool IS_SEEDS, std::string img_file_pat
 
 	if (input_image.empty())
 	{
-		cout << "Could not open image...\n";
+		std::cout << "Could not open image...\n";
 		return -1;
 	}
 
@@ -248,10 +291,10 @@ int SuperPixelMask::CreateSEEDSorLSCMask(bool IS_SEEDS, std::string img_file_pat
 	int num_superpixels = 400;
 	int num_levels = 4;
 	int num_histogram_bins = 5;
-	createTrackbar("Number of Superpixels", window_name, &num_superpixels, 1000, false);
-	createTrackbar("Smoothing Prior", window_name, &prior, 5, false);
-	createTrackbar("Number of Levels", window_name, &num_levels, 10, false);
-	createTrackbar("Iterations", window_name, &num_iterations, 12, 0);
+	cv::createTrackbar("Number of Superpixels", window_name, &num_superpixels, 1000, false);
+	cv::createTrackbar("Smoothing Prior", window_name, &prior, 5, false);
+	cv::createTrackbar("Number of Levels", window_name, &num_levels, 10, false);
+	cv::createTrackbar("Iterations", window_name, &num_iterations, 12, 0);
 
 	Mat result, mask;
 	Ptr<cv::ximgproc::SuperpixelSEEDS> seeds;

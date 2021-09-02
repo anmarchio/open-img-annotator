@@ -46,6 +46,7 @@ public:
 	wxPoint edgePoint;
 	std::vector<DrawLine> lines;
 	std::vector<PolygonShape> polygons;	
+	std::vector<PolygonShape> superpixelLabels;
 
 	ImageLabelWindow(wxDialog * parent, wxString file, wxBitmapType format);
 
@@ -65,6 +66,8 @@ public:
 	void OnAbout(wxCommandEvent & event);
 	void OnOpen(wxCommandEvent & event);
 	void OnSave(wxCommandEvent & event);
+
+	void OnComputeSuperpixels(wxCommandEvent& event);
 
 	DECLARE_EVENT_TABLE();
 };

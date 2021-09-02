@@ -7,10 +7,9 @@ PolygonShape::PolygonShape()
 	size = 0;
 };
 
-PolygonShape::PolygonShape(wxPointList* pts, int number)
+PolygonShape::PolygonShape(wxPointList &pts, int number)
 {
-	points = new wxPointList();
-	points = pts;
+	points = &pts;
 	size = number;
 };
 
@@ -29,7 +28,6 @@ void PolygonShape::insertPoint(wxPoint pt)
 	points->Append(&pt);
 	size++;
 }
-
 
 PolygonShape::~PolygonShape()
 {

@@ -83,16 +83,15 @@ bool MyApp::OnInit()
 	// loop and the application will run. If we returned false here, the
 	// application would exit immediately.
 		
-	//char* arg = new char();
-	//cv::ximgproc::mainSLIC(0, &arg);
-	//SuperPixelMask *spm;
-	//spm = new SuperPixelMask();
-	//spm->CreateSLICMask(false, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
-	//spm->CreateSEEDSorLSCMask(1, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
-	//spm->CreateSEEDSorLSCMask(0, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\road_tiny.jpg");
+	// SuperPixelMask *spm;
+	// spm = new SuperPixelMask();
+	// spm->CreateSLICMask(false, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
+	// spm->CreateSEEDSorLSCMask(1, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
+	// spm->CreateSEEDSorLSCMask(0, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\road_tiny.jpg");
 	
 	return true;
 }
+
 /*
 OnTestImageLabeller is only used for testing purposes.
 It will immediately create the ImageLabelWindow frame for faster coding.
