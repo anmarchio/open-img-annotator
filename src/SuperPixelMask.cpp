@@ -126,22 +126,21 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 		PolygonShape shp;
 		for (int j = 0; j < contours[i].size(); j++)
 		{
-			wxPoint* pt = new wxPoint(
-				contours[i][j].x,
-				contours[i][j].y
-			);
-			if (pt->x < 0) pt->x = 0;
-			else if (pt->x > matInputImage.cols)
-			{
-				pt->x = matInputImage.cols;
-			}
-			if (pt->y < 0) pt->y = 0;
-			else if (pt->y > matInputImage.rows)
-			{
-				pt->y = matInputImage.rows;
-			}
+			wxPoint pt;
+			pt.x = contours[i][j].x;
+			pt.y = contours[i][j].y;
 			
-			shp.insertPoint(*pt);
+			if (pt.x < 0) pt.x = 0;
+			else if(pt.x > matInputImage.cols)
+			{
+				pt.x = matInputImage.cols;
+			}
+			if (pt.y < 0) pt.y = 0;
+			else if (pt.y > matInputImage.rows)
+			{
+				pt.y = matInputImage.rows;
+			}			
+			shp.insertPoint(pt);
 		}
 		superpixelLabels->push_back(shp);
 	}
