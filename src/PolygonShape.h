@@ -15,7 +15,7 @@ public:
 	PolygonShape();
 	PolygonShape(wxPointList &points, int number);
 	PolygonShape(std::vector<DrawLine> lines);
-	void insertPoint(wxPoint pt);
+	void insertPoint(wxPoint* pt);
 	~PolygonShape();
 
 	void Draw(wxBufferedPaintDC & dc);

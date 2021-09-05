@@ -23,9 +23,9 @@ PolygonShape::PolygonShape(std::vector<DrawLine> lines)
 	size = lines.size();
 };
 
-void PolygonShape::insertPoint(wxPoint pt)
+void PolygonShape::insertPoint(wxPoint* pt)
 {
-	points->Append(&pt);
+	points->Append(pt);
 	size++;
 }
 

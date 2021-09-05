@@ -112,8 +112,10 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 		//dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
 		for (size_t j = 0; j < superpixelLabels[0].size; j++)
 		{
-			wxPoint* pt = superpixelLabels[0].points->Item(j)->GetData();
-			dc.DrawPoint((wxCoord)pt->x, (wxCoord)pt->y);
+			//wxPoint* pt = superpixelLabels[0].points->Item(j)->GetData();
+			//dc.DrawPoint((wxCoord)pt->x, (wxCoord)pt->y);
+			dc.SetBrush(*wxGREEN_BRUSH); // green filling
+			dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
 		}
 	}
 
@@ -296,10 +298,12 @@ void ImageLabelWindow::OnQuit(wxCommandEvent& event)
 ////////////////////////////
 const int minElementSize = 100;
 
+int testvar = 0;
+
 void ImageLabelWindow::OnComputeSuperpixels(wxCommandEvent& event)
 {
 	SuperPixelMask *spm = new SuperPixelMask();
-	spm->getSuperpixelSLICContours(minElementSize, image, &superpixelLabels);
+	spm->getSuperpixelSLICContours(minElementSize, image, &superpixelLabels, &testvar);
 	std::cout << superpixelLabels.size();
 	Refresh();
 }

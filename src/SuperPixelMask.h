@@ -22,7 +22,7 @@ public:
 	cv::Mat ConvertWxImageToMat(wxImage &wx);
 
 	void DisplayImageWindow(int use_video_capture, cv::VideoCapture cap, cv::Mat input_image, int algorithm, int region_size, int ruler, int min_element_size, int num_iterations);
-	void getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape>* superpixelLabels);
+	void getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape>* superpixelLabels, int* testvar);
 	int CreateSLICMask(bool use_video_capture_flag, std::string img_file_path);
 
 	void trackbarChanged(int pos, void* data);

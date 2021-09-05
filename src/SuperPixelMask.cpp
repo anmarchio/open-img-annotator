@@ -55,7 +55,7 @@ SuperPixelMask::SuperPixelMask() {
 std::string window_name_str = "SLIC";
 
 
-void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape>* superpixelLabels)
+void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape>* superpixelLabels, int* testvar)
 {	
 	const int algorithm = 0;
 	const int region_size = 50;
@@ -123,29 +123,29 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 	// Fill superpixelLabels
 	for (int i = 0; i < contours.size(); i++)
 	{
-		PolygonShape shp;
+		PolygonShape* shp = new PolygonShape();
 		for (int j = 0; j < contours[i].size(); j++)
 		{
-			wxPoint pt;
-			pt.x = contours[i][j].x;
-			pt.y = contours[i][j].y;
+			wxPoint* pt = new wxPoint();
+			pt->x = contours[i][j].x;
+			pt->y = contours[i][j].y;
 			
-			if (pt.x < 0) pt.x = 0;
-			else if(pt.x > matInputImage.cols)
+			if (pt->x < 0) pt->x = 0;
+			else if(pt->x > matInputImage.cols)
 			{
-				pt.x = matInputImage.cols;
+				pt->x = matInputImage.cols;
 			}
-			if (pt.y < 0) pt.y = 0;
-			else if (pt.y > matInputImage.rows)
+			if (pt->y < 0) pt->y = 0;
+			else if (pt->y > matInputImage.rows)
 			{
-				pt.y = matInputImage.rows;
+				pt->y = matInputImage.rows;
 			}			
-			shp.insertPoint(pt);
+			shp->insertPoint(pt);
 		}
-		superpixelLabels->push_back(shp);
+		superpixelLabels->push_back(*shp);
 	}
-	int number = superpixelLabels->size();
-	cout << number;
+
+	*testvar = 230;
 }
 
 void SuperPixelMask::DisplayImageWindow(int use_video_capture, cv::VideoCapture cap, cv::Mat input_image, int algorithm, int region_size, int ruler, int min_element_size, int num_iterations)
