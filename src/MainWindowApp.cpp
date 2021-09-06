@@ -114,8 +114,6 @@ void MyApp::OnTestImageLabeller()
 	drawPane = new ImageLabelWindow(frame, path, wxBITMAP_TYPE_ANY);
 	sizer->Add(drawPane, 1, wxEXPAND);
 
-
 	frame->SetSizer(sizer);
-
-	frame->ShowModal();
+	frame->Show(true);
 }

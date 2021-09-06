@@ -7,7 +7,7 @@ BEGIN_EVENT_TABLE(ImageLabelWindow, wxPanel)
 	EVT_MENU(wxID_OPEN, ImageLabelWindow::OnOpen)
 	EVT_MENU(wxID_SAVE, ImageLabelWindow::OnSave)
 	EVT_MENU(wxID_HELP, ImageLabelWindow::OnAbout)
-	EVT_MENU(wxID_ANY, ImageLabelWindow::OnComputeSuperpixels)
+	EVT_MENU(wxID_FILE1, ImageLabelWindow::OnComputeSuperpixels)
 	EVT_MENU(wxID_EXIT, ImageLabelWindow::OnQuit)
 	EVT_PAINT(ImageLabelWindow::paintEvent)
 	//Size event
@@ -20,16 +20,21 @@ ImageLabelWindow::ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType
 	w = -1;
 	h = -1;
 
-	parent->SetSize(image.GetWidth(), image.GetHeight());
+	
+	parent->SetSize((image.GetWidth() > 400) ? image.GetWidth() : 400, image.GetHeight());
 
 	wxPanel* m_panel = new wxPanel(this, wxID_ANY);
 	RecreateToolbar(m_panel);
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 	m_panel->SetSizer(sizer); 
-	m_panel->SetSize(wxSize(image.GetWidth(), 40));
+	m_panel->SetSize(
+		wxSize(
+		(image.GetWidth() > 400) ? image.GetWidth() : 400, 
+			40
+		)
+	);
 
-	parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
-	
+	parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);	
 	
 	trackMouseMovement = false;
 	maxDistanceToStartPoint = 5;
@@ -70,14 +75,14 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 
 	const int ID_TOOLBAR = 500;
 	static const long TOOLBAR_STYLE = wxTB_FLAT | wxTB_DOCKABLE | wxTB_TEXT;
-	wxToolBar *toolBar = new wxToolBar(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_TEXT | wxTB_FLAT | wxTB_TOP, wxString("Toolbar"));
+	wxToolBar *toolBar = new wxToolBar(parent, wxID_FILE1, wxDefaultPosition, wxDefaultSize, wxTB_TEXT | wxTB_FLAT | wxTB_TOP, wxString("Toolbar"));
 
 	toolBar->SetToolBitmapSize(wxSize(w, h));
 	
 	toolBar->AddTool(wxID_OPEN, "Open", toolBarBitmaps[Tool_open], "Open", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_SAVE, "Save", toolBarBitmaps[Tool_save], "Save As", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_HELP, "About", toolBarBitmaps[Tool_help], "About", wxITEM_NORMAL);
-	toolBar->AddTool(wxID_ANY, "Superpixels", toolBarBitmaps[Tool_help], "Create Superpixel", wxITEM_NORMAL);
+	toolBar->AddTool(wxID_FILE1, "Superpixels", toolBarBitmaps[Tool_help], "Create Superpixel", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_EXIT, "Exit", toolBarBitmaps[Tool_exit], "Exit application", wxITEM_NORMAL);
 
 	toolBar->Realize();
@@ -115,7 +120,8 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 			//wxPoint* pt = superpixelLabels[0].points->Item(j)->GetData();
 			//dc.DrawPoint((wxCoord)pt->x, (wxCoord)pt->y);
 			dc.SetBrush(*wxGREEN_BRUSH); // green filling
-			dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
+			//dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
+			dc.DrawLines(superpixelLabels[i].points, 0, 0);
 		}
 	}
 
@@ -288,9 +294,8 @@ void ImageLabelWindow::OnAbout(wxCommandEvent& event)
 
 void ImageLabelWindow::OnQuit(wxCommandEvent& event)
 {
-	//exit(3); 
-	// hard exit
-	Close(true);
+	exit(3); // hard exit
+	//Close(true);
 }
 
 /////////////////////////////
@@ -298,12 +303,9 @@ void ImageLabelWindow::OnQuit(wxCommandEvent& event)
 ////////////////////////////
 const int minElementSize = 100;
 
-int testvar = 0;
-
 void ImageLabelWindow::OnComputeSuperpixels(wxCommandEvent& event)
 {
 	SuperPixelMask *spm = new SuperPixelMask();
-	spm->getSuperpixelSLICContours(minElementSize, image, &superpixelLabels, &testvar);
-	std::cout << superpixelLabels.size();
+	spm->getSuperpixelSLICContours(minElementSize, image, &superpixelLabels);
 	Refresh();
 }

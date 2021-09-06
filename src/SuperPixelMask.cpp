@@ -54,73 +54,78 @@ SuperPixelMask::SuperPixelMask() {
 
 std::string window_name_str = "SLIC";
 
-
-void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape>* superpixelLabels, int* testvar)
+int SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &input_image, std::vector<PolygonShape>* superpixelLabels)
 {	
+	superpixelLabels->clear();
 	const int algorithm = 0;
-	const int region_size = 50;
+	int region_size = 50;
 	const int ruler = 30;
 	const int num_iterations = 5;
-	
+
 	/*
 		Missing: int* to Mat conversion
 	*/
 	Mat matInputImage = ConvertWxImageToMat(input_image);
-	Mat result = Mat::zeros(matInputImage.rows, matInputImage.cols, CV_8UC3);
+	Mat result;
 	Mat mask;
-
-	Mat converted;
-	cvtColor(matInputImage, converted, COLOR_BGR2HSV);
-
-	Ptr<cv::ximgproc::SuperpixelSLIC> slic = cv::ximgproc::createSuperpixelSLIC(converted, algorithm + cv::ximgproc::SLIC, region_size, float(ruler));
-	slic->iterate(num_iterations);
-	slic->enforceLabelConnectivity(min_element_size);
-	int numberOfSuperpixels = slic->getNumberOfSuperpixels();
-	
-	
-	// get the contours for displaying
-	slic->getLabelContourMask(mask, true);
-	Mat labels = Mat(matInputImage.rows, matInputImage.cols, CV_8U);
-	slic->getLabels(labels);
-	/*
-	------------------------------------------------------------------
-		NOTE: At this point, we may want to think about
-		converting contours to an 'array of segments of wxPoints'.
-
-		(!) For performance pursposes, we also may want to limit
-		the maximum number of segments & wxPoints to keep the application
-		responsive at all times.
-	------------------------------------------------------------------
-	*/    
 	Mat hierarchy;
 	vector<vector<Point>> contours;
-	Mat superpixel_mask = labels == 1;
+	Mat converted;
+
+	namedWindow(window_name, 0);
+	resizeWindow(window_name, cv::Size(matInputImage.cols, matInputImage.rows));
+	cv::createTrackbar("Region size", window_name, &region_size, 200, 0);
+	Mat labels = Mat(matInputImage.rows, matInputImage.cols, CV_8U);
 	Mat dst;
-	threshold(superpixel_mask, dst, 128.0f, 255.0, CV_8U);
-	findContours(dst, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-	//input_image = ConvertMatToWxImage(result);
-	
-	/*
-	for (;;)
-	{
+	Mat superpixel_mask;
+
+	for (;;)	{
+		contours.clear();
+		matInputImage.copyTo(result);
+
+		cvtColor(matInputImage, converted, COLOR_BGR2HSV);
+
+		Ptr<cv::ximgproc::SuperpixelSLIC> slic = cv::ximgproc::createSuperpixelSLIC(converted, algorithm + cv::ximgproc::SLIC, region_size, float(ruler));
+		slic->iterate(num_iterations);
+		slic->enforceLabelConnectivity(min_element_size);
+		int numberOfSuperpixels = slic->getNumberOfSuperpixels();
+		
+		// get the contours for displaying
+		slic->getLabelContourMask(mask, true);
+		result.setTo(Scalar(0, 0, 255), mask);
+
+		slic->getLabels(labels);
+		/*
+		------------------------------------------------------------------
+			NOTE: At this point, we may want to think about
+			converting contours to an 'array of segments of wxPoints'.
+
+			(!) For performance pursposes, we also may want to limit
+			the maximum number of segments & wxPoints to keep the application
+			responsive at all times.
+		------------------------------------------------------------------
+		*/
+		//superpixel_mask = labels == 1;
+		//threshold(superpixel_mask, dst, 128.0f, 255.0, CV_8U);
+		threshold(mask, dst, 128.0f, 255.0, CV_8U);
+		findContours(dst, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+		//input_image = ConvertMatToWxImage(result);
+		
 		// Show OpenCV mask in window
-		Scalar color(0, 0, 255);
-		drawContours(result, contours, 0, color, LINE_8, 8, hierarchy);
+		//Scalar color(0, 0, 255);
+		//drawContours(result, contours, 0, color, LINE_8, 4, hierarchy);
 		//prepare a grey mask
 		//cv::cvtColor(contours[0], maskMat, COLOR_BGR2GRAY);
 		//threshold(maskMat, maskMat, 0, 255, THRESH_BINARY);
 		// use mask to crop original image
 		//result.copyTo(result, maskMat);
-		namedWindow(window_name, 0);
-		resizeWindow(window_name, cv::Size(matInputImage.cols, matInputImage.rows));
 		imshow(window_name, result);
 		int c = waitKey(1) & 0xff;
 		if (c == 'q' || c == 'Q' || c == 27)
 			break;
 	}
-	*/
 
-	// Fill superpixelLabels
+	// Write superpixel points to pointer superpixelLabels
 	for (int i = 0; i < contours.size(); i++)
 	{
 		PolygonShape* shp = new PolygonShape();
@@ -144,8 +149,8 @@ void SuperPixelMask::getSuperpixelSLICContours(int min_element_size, wxImage &in
 		}
 		superpixelLabels->push_back(*shp);
 	}
-
-	*testvar = 230;
+	cv::destroyWindow(window_name);
+	return 0;
 }
 
 void SuperPixelMask::DisplayImageWindow(int use_video_capture, cv::VideoCapture cap, cv::Mat input_image, int algorithm, int region_size, int ruler, int min_element_size, int num_iterations)
