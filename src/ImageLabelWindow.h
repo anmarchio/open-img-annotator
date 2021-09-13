@@ -30,20 +30,29 @@
 #include "bitmaps/save.xpm"
 #include "bitmaps/exit.xpm"
 #include "bitmaps/help.xpm"
+
 #endif 
+
+const int ID_SLIDER0 = 100;
 
 class ImageLabelWindow : public wxPanel
 {
 	wxImage image;
 	wxBitmap resized;
 	int w, h;
-
+	bool displaySuperpixels;
 	bool trackMouseMovement;
 	int maxDistanceToStartPoint;
 
 public:
+	wxPanel* toolBarPanel;
+	wxSlider* regionSizeSlider;
+	wxStaticText* valueRegionSizeSlider; 
+	wxPanel* imagePanel;
+	
 	wxPoint startPoint;
 	wxPoint edgePoint;
+
 	std::vector<DrawLine> lines;
 	std::vector<PolygonShape> polygons;	
 	std::vector<PolygonShape> superpixelLabels;
@@ -66,6 +75,7 @@ public:
 	void OnAbout(wxCommandEvent & event);
 	void OnOpen(wxCommandEvent & event);
 	void OnSave(wxCommandEvent & event);
+	void OnScroll(wxScrollEvent& WXUNUSED(event));
 
 	void OnComputeSuperpixels(wxCommandEvent& event);
 

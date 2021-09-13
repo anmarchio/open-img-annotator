@@ -2,40 +2,61 @@
 #include "ImageLabelWindow.h"
 
 BEGIN_EVENT_TABLE(ImageLabelWindow, wxPanel)
-	EVT_MOTION(ImageLabelWindow::OnMouseMove)
-	EVT_LEFT_DOWN(ImageLabelWindow::OnLeftMouseDown)
-	EVT_MENU(wxID_OPEN, ImageLabelWindow::OnOpen)
-	EVT_MENU(wxID_SAVE, ImageLabelWindow::OnSave)
-	EVT_MENU(wxID_HELP, ImageLabelWindow::OnAbout)
-	EVT_MENU(wxID_FILE1, ImageLabelWindow::OnComputeSuperpixels)
-	EVT_MENU(wxID_EXIT, ImageLabelWindow::OnQuit)
-	EVT_PAINT(ImageLabelWindow::paintEvent)
-	//Size event
-	//EVT_SIZE(ImageLabelWindow::OnSize)
+EVT_MOTION(ImageLabelWindow::OnMouseMove)
+EVT_LEFT_DOWN(ImageLabelWindow::OnLeftMouseDown)
+EVT_MENU(wxID_OPEN, ImageLabelWindow::OnOpen)
+EVT_MENU(wxID_SAVE, ImageLabelWindow::OnSave)
+EVT_MENU(wxID_HELP, ImageLabelWindow::OnAbout)
+EVT_MENU(wxID_FILE1, ImageLabelWindow::OnComputeSuperpixels)
+EVT_MENU(wxID_EXIT, ImageLabelWindow::OnQuit)
+EVT_PAINT(ImageLabelWindow::paintEvent)
+//Size event
+//EVT_SIZE(ImageLabelWindow::OnSize)
 END_EVENT_TABLE()
+
+wxString imgFilePath;
 
 ImageLabelWindow::ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format) : wxPanel(parent)
 {
+	displaySuperpixels = false;
+
 	image.LoadFile(file, format);
 	w = -1;
 	h = -1;
 
-	
-	parent->SetSize((image.GetWidth() > 400) ? image.GetWidth() : 400, image.GetHeight());
+	parent->SetSize((image.GetWidth() > 400) ? image.GetWidth() : 400, image.GetHeight() + 100);
 
-	wxPanel* m_panel = new wxPanel(this, wxID_ANY);
-	RecreateToolbar(m_panel);
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-	m_panel->SetSizer(sizer); 
-	m_panel->SetSize(
-		wxSize(
-		(image.GetWidth() > 400) ? image.GetWidth() : 400, 
-			40
-		)
-	);
+	//create FlexGridSizer
+	wxFlexGridSizer* sizer = new wxFlexGridSizer(1);
+	sizer->SetRows(11);
 
-	parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);	
+	//create sliders
+	regionSizeSlider = new wxSlider(this, ID_SLIDER0, 0, 0, 100, wxPoint(50, 30), wxSize(400, 30), wxSL_HORIZONTAL);
+	regionSizeSlider->SetAutoLayout(true);
+
+	//bind eventhandlers
+	regionSizeSlider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, wxScrollEventHandler(ImageLabelWindow::OnScroll), this);
+
+	//create textlines
+	valueRegionSizeSlider = new wxStaticText(this, wxID_ANY, wxT("0"));
+	valueRegionSizeSlider->SetAutoLayout(true);
 	
+	toolBarPanel = new wxPanel(this, wxID_ANY, wxPoint(0, 0), wxSize(400, 50), wxSL_HORIZONTAL);
+	toolBarPanel->SetAutoLayout(true);
+	RecreateToolbar(toolBarPanel);
+	//parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
+
+	imagePanel = new wxPanel();
+	imagePanel->SetSize((image.GetWidth() > 400) ? image.GetWidth() : 400, image.GetHeight());
+	imagePanel->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
+
+	//add elements to Sizer
+	sizer->Insert(0, toolBarPanel);
+	sizer->Insert(1, regionSizeSlider);
+	sizer->Insert(2, valueRegionSizeSlider);
+	sizer->Insert(3, imagePanel);
+	SetSizer(sizer);
+
 	trackMouseMovement = false;
 	maxDistanceToStartPoint = 5;
 	Show();
@@ -72,7 +93,6 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 	int w = toolBarBitmaps[Tool_new].GetWidth(),
 		h = toolBarBitmaps[Tool_new].GetHeight();
 
-
 	const int ID_TOOLBAR = 500;
 	static const long TOOLBAR_STYLE = wxTB_FLAT | wxTB_DOCKABLE | wxTB_TEXT;
 	wxToolBar *toolBar = new wxToolBar(parent, wxID_FILE1, wxDefaultPosition, wxDefaultSize, wxTB_TEXT | wxTB_FLAT | wxTB_TOP, wxString("Toolbar"));
@@ -82,9 +102,8 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 	toolBar->AddTool(wxID_OPEN, "Open", toolBarBitmaps[Tool_open], "Open", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_SAVE, "Save", toolBarBitmaps[Tool_save], "Save As", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_HELP, "About", toolBarBitmaps[Tool_help], "About", wxITEM_NORMAL);
-	toolBar->AddTool(wxID_FILE1, "Superpixels", toolBarBitmaps[Tool_help], "Create Superpixel", wxITEM_NORMAL);
-	toolBar->AddTool(wxID_EXIT, "Exit", toolBarBitmaps[Tool_exit], "Exit application", wxITEM_NORMAL);
-
+	toolBar->AddTool(wxID_FILE1, "Superpixels", toolBarBitmaps[Tool_help], "Show Superpixels", wxITEM_CHECK);
+	toolBar->AddTool(wxID_EXIT, "Quit", toolBarBitmaps[Tool_exit], "Quit application", wxITEM_NORMAL);
 	toolBar->Realize();
 }
 
@@ -154,10 +173,10 @@ void ImageLabelWindow::render(wxDC&  dc)
 		w = neww;
 		h = newh;
 
-		dc.DrawBitmap(resized, 0, 0, false);
+		dc.DrawBitmap(resized, 0, 80, false);
 	}
 	else {
-		dc.DrawBitmap(resized, 0, 0, false);
+		dc.DrawBitmap(resized, 0, 80, false);
 	}
 }
 
@@ -251,9 +270,19 @@ void ImageLabelWindow::OnKeyDown(wxKeyEvent& evt)
 	evt.Skip();
 }
 
+/////////////////////////////////////
+// Panel Icon Events
+/////////////////////////////////////
 void ImageLabelWindow::OnOpen(wxCommandEvent& event)
 {
-	(void)wxMessageBox("Open JSON File", "Open File");
+	// Open File Dialog, select image
+	wxFileDialog
+		openFileDialog(this, _("Open image file"), "", "",
+			"Image files (*.bmp;*.gif;*.png;*.jpg)|*.bmp;*.gif;*.jpg;*.png", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	if (openFileDialog.ShowModal() != wxID_CANCEL)
+	{
+		imgFilePath = openFileDialog.GetPath();
+	}
 }
 
 void ImageLabelWindow::OnSave(wxCommandEvent& event)
@@ -294,18 +323,23 @@ void ImageLabelWindow::OnAbout(wxCommandEvent& event)
 
 void ImageLabelWindow::OnQuit(wxCommandEvent& event)
 {
-	exit(3); // hard exit
-	//Close(true);
+	exit(3);
 }
 
-/////////////////////////////
-/// Superpixel Events
-////////////////////////////
-const int minElementSize = 100;
+void ImageLabelWindow::OnScroll(wxScrollEvent& WXUNUSED(event))
+{
+	regionSizeSlider->GetValue();
+	//Updating slidervalue in textline
+	valueRegionSizeSlider->SetLabel(wxString(std::to_string(regionSizeSlider->GetValue())));
+	if (displaySuperpixels && regionSizeSlider->GetValue() > 0)
+	{
+		SuperPixelMask *spm = new SuperPixelMask();
+		spm->getSuperpixelSLICContours(regionSizeSlider->GetValue(), image, &superpixelLabels);
+	}
+	Refresh();
+}
 
 void ImageLabelWindow::OnComputeSuperpixels(wxCommandEvent& event)
 {
-	SuperPixelMask *spm = new SuperPixelMask();
-	spm->getSuperpixelSLICContours(minElementSize, image, &superpixelLabels);
-	Refresh();
+	displaySuperpixels = !displaySuperpixels;
 }
