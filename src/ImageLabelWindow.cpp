@@ -16,6 +16,8 @@ END_EVENT_TABLE()
 
 wxString imgFilePath;
 
+int panelOffsetY = 80;
+
 ImageLabelWindow::ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format) : wxPanel(parent)
 {
 	displaySuperpixels = false;
@@ -36,18 +38,19 @@ ImageLabelWindow::ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType
 
 	//bind eventhandlers
 	regionSizeSlider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, wxScrollEventHandler(ImageLabelWindow::OnScroll), this);
+	regionSizeSlider->Enable(false);
 
 	//create textlines
 	valueRegionSizeSlider = new wxStaticText(this, wxID_ANY, wxT("0"));
 	valueRegionSizeSlider->SetAutoLayout(true);
-	
+
 	toolBarPanel = new wxPanel(this, wxID_ANY, wxPoint(0, 0), wxSize(400, 50), wxSL_HORIZONTAL);
 	toolBarPanel->SetAutoLayout(true);
 	RecreateToolbar(toolBarPanel);
 	//parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
 
 	imagePanel = new wxPanel();
-	imagePanel->SetSize((image.GetWidth() > 400) ? image.GetWidth() : 400, image.GetHeight());
+	imagePanel->SetSize(image.GetWidth(), image.GetHeight());
 	imagePanel->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
 
 	//add elements to Sizer
@@ -140,7 +143,7 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 			//dc.DrawPoint((wxCoord)pt->x, (wxCoord)pt->y);
 			dc.SetBrush(*wxGREEN_BRUSH); // green filling
 			//dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
-			dc.DrawLines(superpixelLabels[i].points, 0, 0);
+			dc.DrawLines(superpixelLabels[i].points, 0, panelOffsetY);
 		}
 	}
 
@@ -173,10 +176,10 @@ void ImageLabelWindow::render(wxDC&  dc)
 		w = neww;
 		h = newh;
 
-		dc.DrawBitmap(resized, 0, 80, false);
+		dc.DrawBitmap(resized, 0, 0, false);
 	}
 	else {
-		dc.DrawBitmap(resized, 0, 80, false);
+		dc.DrawBitmap(resized, 0, 0, false);
 	}
 }
 
@@ -342,4 +345,5 @@ void ImageLabelWindow::OnScroll(wxScrollEvent& WXUNUSED(event))
 void ImageLabelWindow::OnComputeSuperpixels(wxCommandEvent& event)
 {
 	displaySuperpixels = !displaySuperpixels;
+	regionSizeSlider->Enable(!regionSizeSlider->IsEnabled());
 }
