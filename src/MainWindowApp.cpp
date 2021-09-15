@@ -109,6 +109,7 @@ void MyApp::OnTestImageLabeller()
 
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	frame = new wxDialog(NULL, wxID_ANY, wxT("Label Image"), wxPoint(50, 50), wxSize(800, 600));
+	//frame = new wxFrame(NULL, wxID_ANY, wxT("Label Image"), wxPoint(50, 50), wxSize(800, 600), 0, wxString("Label Image"));
 
 	// then simply create like this
 	drawPane = new ImageLabelWindow(frame, path, wxBITMAP_TYPE_ANY);

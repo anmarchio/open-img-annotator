@@ -35,10 +35,11 @@
 
 const int ID_SLIDER0 = 100;
 
-class ImageLabelWindow : public wxPanel
+class ImageLabelWindow : public wxFrame
 {
 	wxImage image;
 	wxBitmap resized;
+	wxString imgFilePath;
 	int w, h;
 	bool displaySuperpixels;
 	bool trackMouseMovement;
@@ -57,9 +58,11 @@ public:
 	std::vector<PolygonShape> polygons;	
 	std::vector<PolygonShape> superpixelLabels;
 
-	ImageLabelWindow(wxDialog * parent, wxString file, wxBitmapType format);
+	ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format);
 
-	void RecreateToolbar(wxPanel * parent);	
+	void RecreateToolbar(wxPanel * parent);
+	int getHeaderPanelHeight();
+
 	void paintEvent(wxPaintEvent & evt);
 	void paintNow();
 	void OnSize(wxSizeEvent& event);

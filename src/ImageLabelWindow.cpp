@@ -14,10 +14,6 @@ EVT_PAINT(ImageLabelWindow::paintEvent)
 //EVT_SIZE(ImageLabelWindow::OnSize)
 END_EVENT_TABLE()
 
-wxString imgFilePath;
-
-int panelOffsetY = 80;
-
 ImageLabelWindow::ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format) : wxPanel(parent)
 {
 	displaySuperpixels = false;
@@ -50,7 +46,7 @@ ImageLabelWindow::ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType
 	//parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
 
 	imagePanel = new wxPanel();
-	imagePanel->SetSize(image.GetWidth(), image.GetHeight());
+	imagePanel->SetSize(w, h);
 	imagePanel->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
 
 	//add elements to Sizer
@@ -110,6 +106,15 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 	toolBar->Realize();
 }
 
+int ImageLabelWindow::getHeaderPanelHeight() 
+{
+	int toolBarPanelX, toolBarPanelY;
+	toolBarPanel->GetSize(&toolBarPanelX, &toolBarPanelY);
+	int regionSizeSliderX, regionSizeSliderY;
+	regionSizeSlider->GetSize(&regionSizeSliderX, &regionSizeSliderY);
+	return toolBarPanelY + regionSizeSliderY;
+}
+
 void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 {
 	// depending on your system you may need to look at double-buffered dcs
@@ -143,7 +148,7 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 			//dc.DrawPoint((wxCoord)pt->x, (wxCoord)pt->y);
 			dc.SetBrush(*wxGREEN_BRUSH); // green filling
 			//dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
-			dc.DrawLines(superpixelLabels[i].points, 0, panelOffsetY);
+			dc.DrawLines(superpixelLabels[i].points, 0, getHeaderPanelHeight());
 		}
 	}
 
@@ -170,17 +175,19 @@ void ImageLabelWindow::render(wxDC&  dc)
 	int neww, newh;
 	dc.GetSize(&neww, &newh);
 
+	dc.DrawBitmap(image, 0, getHeaderPanelHeight(), false);
+	/*
 	if (neww != w || newh != h)
 	{
-		resized = wxBitmap(image.Scale(neww, newh /*, wxIMAGE_QUALITY_HIGH */));
+		resized = wxBitmap(image.Scale(neww, newh); //wxIMAGE_QUALITY_HIGH
 		w = neww;
 		h = newh;
 
-		dc.DrawBitmap(resized, 0, 0, false);
+		dc.DrawBitmap(resized, 0, getHeaderPanelHeight(), false);
 	}
 	else {
-		dc.DrawBitmap(resized, 0, 0, false);
-	}
+		dc.DrawBitmap(resized, 0, getHeaderPanelHeight(), false);
+	}*/
 }
 
 void ImageLabelWindow::OnSize(wxSizeEvent& event) {
@@ -326,7 +333,7 @@ void ImageLabelWindow::OnAbout(wxCommandEvent& event)
 
 void ImageLabelWindow::OnQuit(wxCommandEvent& event)
 {
-	exit(3);
+	quick_exit(3);
 }
 
 void ImageLabelWindow::OnScroll(wxScrollEvent& WXUNUSED(event))
