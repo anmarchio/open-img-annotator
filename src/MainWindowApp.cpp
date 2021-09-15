@@ -62,6 +62,8 @@ wxIMPLEMENT_APP(MyApp);
 // ----------------------------------------------------------------------------
 // the application class
 // ----------------------------------------------------------------------------
+//const std::string path = "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg";
+const std::string path = "C:\\Users\\mara_c10\\Pictures\\road_tiny.jpg";
 
 // 'Main program' equivalent: the program execution "starts" here
 bool MyApp::OnInit()
@@ -72,23 +74,19 @@ bool MyApp::OnInit()
 	if (!wxApp::OnInit())
 		return false;
 
-	// create the main application window
-	
-	// and show it (the frames, unlike simple controls, are not shown when
-	// created initially)
-	//frame->Show(true);
-	OnTestImageLabeller();
+	wxInitAllImageHandlers();
 
-	// success: wxApp::OnRun() will be called which will enter the main message
-	// loop and the application will run. If we returned false here, the
-	// application would exit immediately.
-		
-	// SuperPixelMask *spm;
-	// spm = new SuperPixelMask();
-	// spm->CreateSLICMask(false, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
-	// spm->CreateSEEDSorLSCMask(1, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg");
-	// spm->CreateSEEDSorLSCMask(0, "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\road_tiny.jpg");
-	
+	// Create the main frame window
+	ImageLabelWindow* frame = new ImageLabelWindow((wxFrame *)NULL,
+		path,
+		wxBITMAP_TYPE_ANY,
+		wxID_ANY,
+		"Label Image Editor",
+		wxPoint(100, 100), 
+		wxDefaultSize);
+
+	frame->Show(true);	
+
 	return true;
 }
 
@@ -98,8 +96,7 @@ It will immediately create the ImageLabelWindow frame for faster coding.
 */
 void MyApp::OnTestImageLabeller()
 {
-	const std::string path = "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg";
-
+	
 	// Image Labeller Panel
 	wxDialog *frame;
 	ImageLabelWindow * drawPane;
@@ -107,14 +104,15 @@ void MyApp::OnTestImageLabeller()
 	// make sure to call this first
 	wxInitAllImageHandlers();
 
+	// Create the main frame window
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	frame = new wxDialog(NULL, wxID_ANY, wxT("Label Image"), wxPoint(50, 50), wxSize(800, 600));
 	//frame = new wxFrame(NULL, wxID_ANY, wxT("Label Image"), wxPoint(50, 50), wxSize(800, 600), 0, wxString("Label Image"));
 
 	// then simply create like this
-	drawPane = new ImageLabelWindow(frame, path, wxBITMAP_TYPE_ANY);
-	sizer->Add(drawPane, 1, wxEXPAND);
+	//drawPane = new ImageLabelWindow(frame, path, wxBITMAP_TYPE_ANY);
+	//sizer->Add(drawPane, 1, wxEXPAND);
 
-	frame->SetSizer(sizer);
-	frame->Show(true);
+	//frame->SetSizer(sizer);
+	//frame->Show(true);
 }

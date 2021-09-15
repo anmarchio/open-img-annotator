@@ -14,6 +14,7 @@
 #include "DrawLine.h"
 #include "PolygonShape.h"
 #include "SuperPixelMask.h"
+#include "DrawPane.h"
 
 #define USE_XPM_BITMAPS 1
 
@@ -46,24 +47,33 @@ class ImageLabelWindow : public wxFrame
 	int maxDistanceToStartPoint;
 
 public:
+	ImageLabelWindow(wxFrame *parent,
+		wxString file, 
+		wxBitmapType format,
+		wxWindowID id = wxID_ANY,
+		const wxString& title = "Image Label Editor",
+		const wxPoint& pos = wxDefaultPosition,
+		const wxSize& size = wxDefaultSize,
+		long style = wxDEFAULT_FRAME_STYLE | wxCLIP_CHILDREN);
+	//ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format);
+
 	wxPanel* toolBarPanel;
 	wxSlider* regionSizeSlider;
 	wxStaticText* valueRegionSizeSlider; 
-	wxPanel* imagePanel;
-	
+	DrawPane* imagePanel;
+
+	/*
 	wxPoint startPoint;
 	wxPoint edgePoint;
 
 	std::vector<DrawLine> lines;
 	std::vector<PolygonShape> polygons;	
-	std::vector<PolygonShape> superpixelLabels;
-
-	ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format);
-
+	std::vector<PolygonShape> superpixelLabels;*/
+		
 	void RecreateToolbar(wxPanel * parent);
 	int getHeaderPanelHeight();
 
-	void paintEvent(wxPaintEvent & evt);
+	/*void paintEvent(wxPaintEvent & evt);
 	void paintNow();
 	void OnSize(wxSizeEvent& event);
 	void render(wxDC& dc);
@@ -73,7 +83,7 @@ public:
 	void OnLeftMouseDown(wxMouseEvent& event);
 	void OnMouseMove(wxMouseEvent& event);
 	void OnEraseBackground(wxEraseEvent& Event);
-	void OnKeyDown(wxKeyEvent & evt);
+	void OnKeyDown(wxKeyEvent & evt);*/
 	void OnQuit(wxCommandEvent & event);
 	void OnAbout(wxCommandEvent & event);
 	void OnOpen(wxCommandEvent & event);
