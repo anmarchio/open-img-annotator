@@ -63,7 +63,7 @@ wxIMPLEMENT_APP(MyApp);
 // the application class
 // ----------------------------------------------------------------------------
 //const std::string path = "C:\\dev\\applets\\acquisition\\paramTuner\\samples\\white_fabric_tiny.jpg";
-const std::string path = "C:\\Users\\mara_c10\\Pictures\\road_tiny.jpg";
+const std::string path = "C:\\Users\\mara_c10\\Pictures\\white_fabric_tiny.jpg";
 
 // 'Main program' equivalent: the program execution "starts" here
 bool MyApp::OnInit()

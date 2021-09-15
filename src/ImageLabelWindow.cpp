@@ -51,7 +51,8 @@ ImageLabelWindow::ImageLabelWindow(wxFrame* parent,
 	RecreateToolbar(toolBarPanel);
 	//parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
 
-	imagePanel = new DrawPane(parent, &image);
+	bool test = image.IsOk();
+	imagePanel = new DrawPane(parent, image);
 	//imagePanel->SetSize(image.GetWidth(), image.GetHeight());	
 
 	//add elements to Sizer
