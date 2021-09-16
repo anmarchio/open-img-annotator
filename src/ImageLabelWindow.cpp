@@ -13,6 +13,18 @@ EVT_PAINT(ImageLabelWindow::paintEvent)
 EVT_CLOSE(ImageLabelWindow::OnClose)
 END_EVENT_TABLE()
 
+void ImageLabelWindow::initializeValues(wxString file, wxBitmapType format)
+{
+	// Initialize mouse tracking and drawing variables
+	polygonFinished = true;
+	trackMouseMovement = false;
+	maxDistanceToStartPoint = 20;
+	displaySuperpixels = false;
+	// Load deafult image
+	image.LoadFile(file, format);
+	w = -1;
+	h = -1;
+}
 
 ImageLabelWindow::ImageLabelWindow(wxFrame* parent, 
 	wxString file, 
@@ -24,11 +36,7 @@ ImageLabelWindow::ImageLabelWindow(wxFrame* parent,
 	long style)
 	: wxFrame(parent, id, title, pos, size, style)
 {
-	displaySuperpixels = false;
-
-	image.LoadFile(file, format);
-	w = -1;
-	h = -1;	
+	initializeValues(file, format);
 
 	//create FlexGridSizer
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(1);
@@ -90,7 +98,8 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 		Tool_print,
 		Tool_help,
 		Tool_exit,
-		Tool_Max
+		Tool_superpixels,
+		Tool_Max,
 	};
 
 	wxBitmap toolBarBitmaps[Tool_Max];
@@ -103,6 +112,7 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 	INIT_TOOL_BMP(open);
 	INIT_TOOL_BMP(save);
 	INIT_TOOL_BMP(help);
+	INIT_TOOL_BMP(superpixels);
 	INIT_TOOL_BMP(exit);
 
 	int w = toolBarBitmaps[Tool_new].GetWidth(),
@@ -118,7 +128,7 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 	toolBar->AddTool(wxID_SAVE, "Save", toolBarBitmaps[Tool_save], "Save As", wxITEM_NORMAL);
 	toolBar->AddTool(wxID_HELP, "About", toolBarBitmaps[Tool_help], "About", wxITEM_NORMAL);
 	toolBar->AddSeparator();
-	toolBar->AddTool(wxID_FILE1, "Superpixels", toolBarBitmaps[Tool_help], "Show Superpixels", wxITEM_CHECK);
+	toolBar->AddTool(wxID_FILE1, "Superpixels", toolBarBitmaps[Tool_superpixels], "Show Superpixels", wxITEM_CHECK);
 	toolBar->AddSeparator();
 	toolBar->AddTool(wxID_EXIT, "Quit", toolBarBitmaps[Tool_exit], "Quit application", wxITEM_NORMAL);
 	toolBar->Realize();
@@ -136,7 +146,7 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 	dc.SetTextForeground(GetForegroundColour());
 	dc.SetPen(wxPen(wxColor(255, 0, 0), 2));
 	wxPoint pos = ScreenToClient(wxGetMousePosition());
-	dc.DrawLabel(_T("[X,Y] : ") + wxString::Format(wxT("%i,%i"), 0, pos.y), wxNullBitmap, GetClientRect(), wxALIGN_BOTTOM | wxALIGN_RIGHT);
+	dc.DrawLabel(_T("[X,Y] : ") + wxString::Format(wxT("%i,%i"), 0, 0), wxNullBitmap, GetClientRect(), wxALIGN_BOTTOM | wxALIGN_LEFT);
 
 	// Draw current lines
 	for (size_t i = 0; i < lines.size(); i++)
@@ -175,8 +185,7 @@ void ImageLabelWindow::paintNow()
 
 void ImageLabelWindow::render(wxDC&  dc)
 {
-	int neww, newh;
-	dc.GetSize(&neww, &newh);
+	dc.Clear();
 	dc.DrawBitmap(image, 0, getHeaderPanelHeight(), false);
 }
 
@@ -188,10 +197,6 @@ void ImageLabelWindow::OnSize(wxSizeEvent& event) {
 /////////////////////////////////////
 // Mouse Events for Drawing
 /////////////////////////////////////
-bool polygonFinished = true;
-bool trackMouseMovement = false;
-int maxDistanceToStartPoint = 20;
-
 void ImageLabelWindow::OnLeftMouseDown(wxMouseEvent& event)
 {
 	wxPoint currentPosition = event.GetPosition();
@@ -282,6 +287,18 @@ void ImageLabelWindow::OnOpen(wxCommandEvent& event)
 	if (openFileDialog.ShowModal() != wxID_CANCEL)
 	{
 		imgFilePath = openFileDialog.GetPath();
+
+		if (!imgFilePath.empty()) {
+			// Clear image, lines, polygons and superpixel variables
+			image.Destroy();
+			lines.clear();
+			polygons.clear();
+			superpixelLabels.clear();
+
+			// Load new image and refresh
+			image.LoadFile(imgFilePath, wxBITMAP_TYPE_ANY);
+			Refresh();
+		}
 	}
 }
 
@@ -350,4 +367,8 @@ void ImageLabelWindow::OnComputeSuperpixels(wxCommandEvent& event)
 {
 	displaySuperpixels = !displaySuperpixels;
 	regionSizeSlider->Enable(!regionSizeSlider->IsEnabled());
+	if (displaySuperpixels)
+	{
+		superpixelLabels.clear();
+	}
 }

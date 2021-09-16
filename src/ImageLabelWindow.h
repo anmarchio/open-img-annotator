@@ -30,6 +30,7 @@
 #include "bitmaps/save.xpm"
 #include "bitmaps/exit.xpm"
 #include "bitmaps/help.xpm"
+#include "bitmaps/superpixels.xpm"
 
 #endif 
 
@@ -40,10 +41,15 @@ class ImageLabelWindow : public wxFrame
 	wxImage image;
 	wxBitmap resized;
 	wxString imgFilePath;
-	int w, h;
-	bool displaySuperpixels;
+
+private:
+	bool polygonFinished;
 	bool trackMouseMovement;
 	int maxDistanceToStartPoint;
+	bool displaySuperpixels;
+	int w, h;
+
+	void initializeValues(wxString file, wxBitmapType format);
 
 public:
 	ImageLabelWindow(wxFrame *parent,
