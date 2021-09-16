@@ -303,11 +303,11 @@ void ImageLabelWindow::OnSave(wxCommandEvent& event)
 	}
 	else
 	{
-		for (int i = 0; i < imagePanel->polygons.size(); i++)
+		for (int i = 0; i < polygons.size(); i++)
 		{
-			for (size_t j = 0; j < imagePanel->polygons[i].points->size(); j++)
+			for (size_t j = 0; j < polygons[i].points->size(); j++)
 			{
-				wxPoint* pt = imagePanel->polygons[i].points->operator[](j);
+				wxPoint* pt = polygons[i].points->operator[](j);
 				outputFile << pt->x << ";" << pt->y << ";";
 			}
 			outputFile << "\n";

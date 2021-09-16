@@ -14,7 +14,6 @@
 #include "DrawLine.h"
 #include "PolygonShape.h"
 #include "SuperPixelMask.h"
-#include "DrawPane.h"
 
 #define USE_XPM_BITMAPS 1
 
@@ -55,12 +54,10 @@ public:
 		const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxDefaultSize,
 		long style = wxDEFAULT_FRAME_STYLE | wxCLIP_CHILDREN);
-	//ImageLabelWindow(wxDialog* parent, wxString file, wxBitmapType format);
 
 	wxPanel* toolBarPanel;
 	wxSlider* regionSizeSlider;
 	wxStaticText* valueRegionSizeSlider; 
-	DrawPane* imagePanel;
 
 	wxPoint startPoint;
 	wxPoint edgePoint;
