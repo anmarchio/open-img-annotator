@@ -82,6 +82,7 @@ public:
 
 	void finishPolygon(wxPoint currentPosition);
 	bool isCloseToStartPoint(wxPoint startPosition, wxPoint currentPosition);
+	bool isInImageArea(wxPoint & position);
 	void OnLeftMouseDown(wxMouseEvent& event);
 	void OnMouseMove(wxMouseEvent& event);
 	void OnEraseBackground(wxEraseEvent& Event);

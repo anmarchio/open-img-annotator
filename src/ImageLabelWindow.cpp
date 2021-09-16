@@ -13,19 +13,6 @@ EVT_PAINT(ImageLabelWindow::paintEvent)
 EVT_CLOSE(ImageLabelWindow::OnClose)
 END_EVENT_TABLE()
 
-void ImageLabelWindow::initializeValues(wxString file, wxBitmapType format)
-{
-	// Initialize mouse tracking and drawing variables
-	polygonFinished = true;
-	trackMouseMovement = false;
-	maxDistanceToStartPoint = 20;
-	displaySuperpixels = false;
-	// Load deafult image
-	image.LoadFile(file, format);
-	w = -1;
-	h = -1;
-}
-
 ImageLabelWindow::ImageLabelWindow(wxFrame* parent, 
 	wxString file, 
 	wxBitmapType format,
@@ -57,10 +44,6 @@ ImageLabelWindow::ImageLabelWindow(wxFrame* parent,
 	toolBarPanel = new wxPanel(this, wxID_ANY, wxPoint(0, 0), wxSize(400, 50), wxSL_HORIZONTAL);
 	toolBarPanel->SetAutoLayout(true);
 	RecreateToolbar(toolBarPanel);
-	//parent->Bind(wxEVT_CHAR_HOOK, &ImageLabelWindow::OnKeyDown, this);
-
-	//imagePanel = new ImageLabelWindow(parent, file, format);
-	//imagePanel->SetSize(image.GetWidth(), image.GetHeight());	
 
 	//add elements to Sizer
 	sizer->Insert(0, toolBarPanel);
@@ -74,6 +57,19 @@ ImageLabelWindow::ImageLabelWindow(wxFrame* parent,
 	trackMouseMovement = false;
 	maxDistanceToStartPoint = 5;
 	Show();
+}
+
+void ImageLabelWindow::initializeValues(wxString file, wxBitmapType format)
+{
+	// Initialize mouse tracking and drawing variables
+	polygonFinished = true;
+	trackMouseMovement = false;
+	maxDistanceToStartPoint = 20;
+	displaySuperpixels = false;
+	// Load deafult image
+	image.LoadFile(file, format);
+	w = -1;
+	h = -1;
 }
 
 int ImageLabelWindow::getHeaderPanelHeight()
@@ -161,7 +157,7 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 		for (size_t j = 0; j < superpixelLabels[0].size; j++)
 		{
 			dc.SetBrush(*wxGREEN_BRUSH); // green filling
-			dc.DrawLines(superpixelLabels[i].points, 0, 0);
+			dc.DrawLines(superpixelLabels[i].points, 0, getHeaderPanelHeight());
 		}
 	}
 
@@ -197,38 +193,54 @@ void ImageLabelWindow::OnSize(wxSizeEvent& event) {
 /////////////////////////////////////
 // Mouse Events for Drawing
 /////////////////////////////////////
-void ImageLabelWindow::OnLeftMouseDown(wxMouseEvent& event)
+
+bool ImageLabelWindow::isInImageArea(wxPoint& position)
 {
-	wxPoint currentPosition = event.GetPosition();
-	if (polygonFinished)
+	if (position.y > getHeaderPanelHeight() &&
+		position.y < image.GetHeight() + getHeaderPanelHeight() &&
+		position.x > 0 &&
+		position.x < image.GetWidth())
 	{
-		edgePoint = currentPosition;
+		return true;
 	}
-	if (trackMouseMovement)
+	return false;
+}
+
+void ImageLabelWindow::OnLeftMouseDown(wxMouseEvent& event)
+{	
+	wxPoint currentPosition = event.GetPosition();
+	if (isInImageArea(currentPosition))
 	{
-		if (isCloseToStartPoint(startPoint, currentPosition))
+		if (polygonFinished)
 		{
-			trackMouseMovement = false;
-			if (GetCapture() == this) {
-				std::vector<DrawLine>::iterator it = lines.begin();
-				it = lines.insert(it, DrawLine(edgePoint, startPoint));
-			}
-			finishPolygon(currentPosition);
-			ReleaseMouse();
-		}
-		if (GetCapture() == this) {
-			std::vector<DrawLine>::iterator it = lines.begin();
-			it = lines.insert(it, DrawLine(edgePoint, currentPosition));
 			edgePoint = currentPosition;
 		}
-		Refresh();
-	}
-	else
-	{
-		CaptureMouse();
-		startPoint = event.GetPosition();
-		trackMouseMovement = true;
-		polygonFinished = false;
+		if (trackMouseMovement)
+		{
+			if (isCloseToStartPoint(startPoint, currentPosition))
+			{
+				trackMouseMovement = false;
+				if (GetCapture() == this) {
+					std::vector<DrawLine>::iterator it = lines.begin();
+					it = lines.insert(it, DrawLine(edgePoint, startPoint));
+				}
+				finishPolygon(currentPosition);
+				ReleaseMouse();
+			}
+			if (GetCapture() == this) {
+				std::vector<DrawLine>::iterator it = lines.begin();
+				it = lines.insert(it, DrawLine(edgePoint, currentPosition));
+				edgePoint = currentPosition;
+			}
+			Refresh();
+		}
+		else
+		{
+			CaptureMouse();
+			startPoint = event.GetPosition();
+			trackMouseMovement = true;
+			polygonFinished = false;
+		}
 	}
 }
 
