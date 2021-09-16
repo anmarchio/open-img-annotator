@@ -62,18 +62,17 @@ public:
 	wxStaticText* valueRegionSizeSlider; 
 	DrawPane* imagePanel;
 
-	/*
 	wxPoint startPoint;
 	wxPoint edgePoint;
 
 	std::vector<DrawLine> lines;
 	std::vector<PolygonShape> polygons;	
-	std::vector<PolygonShape> superpixelLabels;*/
+	std::vector<PolygonShape> superpixelLabels;
 		
 	void RecreateToolbar(wxPanel * parent);
 	int getHeaderPanelHeight();
 
-	/*void paintEvent(wxPaintEvent & evt);
+	void paintEvent(wxPaintEvent & evt);
 	void paintNow();
 	void OnSize(wxSizeEvent& event);
 	void render(wxDC& dc);
@@ -83,8 +82,9 @@ public:
 	void OnLeftMouseDown(wxMouseEvent& event);
 	void OnMouseMove(wxMouseEvent& event);
 	void OnEraseBackground(wxEraseEvent& Event);
-	void OnKeyDown(wxKeyEvent & evt);*/
+	void OnKeyDown(wxKeyEvent & evt);
 	void OnQuit(wxCommandEvent & event);
+	void OnClose(wxCloseEvent & event);
 	void OnAbout(wxCommandEvent & event);
 	void OnOpen(wxCommandEvent & event);
 	void OnSave(wxCommandEvent & event);
