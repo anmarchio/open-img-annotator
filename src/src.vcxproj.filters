@@ -39,9 +39,6 @@
     <ClInclude Include="utils.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="DrawPane.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -63,9 +60,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="SuperPixelMask.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="DrawPane.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

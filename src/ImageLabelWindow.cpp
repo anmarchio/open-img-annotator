@@ -10,9 +10,9 @@ EVT_MENU(wxID_HELP, ImageLabelWindow::OnAbout)
 EVT_MENU(wxID_FILE1, ImageLabelWindow::OnComputeSuperpixels)
 EVT_MENU(wxID_EXIT, ImageLabelWindow::OnQuit)
 EVT_PAINT(ImageLabelWindow::paintEvent)
-//Size event
-//EVT_SIZE(ImageLabelWindow::OnSize)
+EVT_CLOSE(ImageLabelWindow::OnClose)
 END_EVENT_TABLE()
+
 
 ImageLabelWindow::ImageLabelWindow(wxFrame* parent, 
 	wxString file, 
@@ -129,11 +129,7 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 //////////////////////////
 void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 {
-	// depending on your system you may need to look at double-buffered dcs
-	//wxPaintDC dc(this);
-	//render(dc);
 	wxBufferedPaintDC dc(this);
-	//wxClientDC dc(this);
 
 	render(dc);
 	dc.SetFont(GetFont());
@@ -151,17 +147,14 @@ void ImageLabelWindow::paintEvent(wxPaintEvent & evt)
 	// draw superpixel labels
 	for (size_t i = 0; i < superpixelLabels.size(); i++)
 	{
-		dc.SetBrush(*wxGREEN_BRUSH); // green filling
-		//dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
+		dc.SetBrush(*wxGREEN_BRUSH);
 		for (size_t j = 0; j < superpixelLabels[0].size; j++)
 		{
-			//wxPoint* pt = superpixelLabels[0].points->Item(j)->GetData();
-			//dc.DrawPoint((wxCoord)pt->x, (wxCoord)pt->y);
 			dc.SetBrush(*wxGREEN_BRUSH); // green filling
-			//dc.DrawPolygon(superpixelLabels[i].points, 0, 0, wxWINDING_RULE);
 			dc.DrawLines(superpixelLabels[i].points, 0, 0);
 		}
 	}
+
 	// draw all polygons
 	for (size_t i = 0; i < polygons.size(); i++)
 	{
@@ -333,6 +326,11 @@ void ImageLabelWindow::OnQuit(wxCommandEvent& event)
 	quick_exit(0);
 }
 
+void ImageLabelWindow::OnClose(wxCloseEvent& event)
+{	
+	quick_exit(0);
+}
+
 void ImageLabelWindow::OnScroll(wxScrollEvent& WXUNUSED(event))
 {
 	regionSizeSlider->GetValue();
@@ -341,9 +339,9 @@ void ImageLabelWindow::OnScroll(wxScrollEvent& WXUNUSED(event))
 	
 	if (displaySuperpixels && regionSizeSlider->GetValue() > 0)
 	{
-		SuperPixelMask *spm = new SuperPixelMask();		
-		std::vector<PolygonShape> tmp_superpixelLabels;
-		spm->getSuperpixelSLICContours(regionSizeSlider->GetValue(), image, &tmp_superpixelLabels/*&imagePanel->superpixelLabels*/);
+		SuperPixelMask *spm = new SuperPixelMask();
+		spm->getSuperpixelSLICContours(regionSizeSlider->GetValue(), image, &superpixelLabels);
+		free(spm);
 	}
 	Refresh();
 }

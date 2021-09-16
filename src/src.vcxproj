@@ -160,7 +160,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DrawLine.h" />
-    <ClInclude Include="DrawPane.h" />
     <ClInclude Include="ImageLabelWindow.h" />
     <ClInclude Include="MainWindowApp.h" />
     <ClInclude Include="MovableObject.h" />
@@ -171,7 +170,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DrawLine.cpp" />
-    <ClCompile Include="DrawPane.cpp" />
     <ClCompile Include="ImageLabelWindow.cpp" />
     <ClCompile Include="MainWindowApp.cpp" />
     <ClCompile Include="MovableObject.cpp" />
