@@ -38,7 +38,12 @@ More instruction details can be found in [SSARCandy/opencv_with_cmake.md](https:
 2. Add to your windows system path: `%OPENCVDIR%\opencv\build\install\x64\<YOUR_VS_VERSION>\bin`
 3. It is probably safe to say: rebooting your system will make sure the changes to environment variables will be available on your system.
 
-### Download and Configure wxWidgets
+## Download and Configure wxWidgets
+
+### Get wxWidgets
+
+- download recent code from [wxwidets](https://www.wxwidgets.org/downloads/)
+- unzip files to your drive, e. g. `C:\wxWidgets-3.1.4` 
 
 ### Setting project references
 
