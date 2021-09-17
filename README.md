@@ -22,14 +22,12 @@ We need two programs to get OpenCV running properly: `Cmake`, a tool that genera
 
 4. Download [OpenCV contrib](https://github.com/Itseez/opencv_contrib)
 5. *Adding EXTRA MODULES:* Set the variable `OPENCV_EXTRA_MODULES_PATH` in the long list to the proper path, e. g. `<opencv_contrib>/modules`
-![image](https://cloud.githubusercontent.com/assets/6803791/15631765/86d41f4e-25ac-11e6-8e1a-4966d8d42a17.png)
 6. Now press `configure` again, then `generate`
 
 More instruction details can be found in [SSARCandy/opencv_with_cmake.md](https://gist.github.com/SSARCandy/fc960d8905330ac695e71e3f3807ce3d) and [opencv_contrib](https://github.com/Itseez/opencv_contrib#how-to-build-opencv-with-extra-modules).
 
 7. Now open `OpenCV.sln` from `<YOUR-OPENCV-PATH>\build\`
-5. Build the project using `Debug`:   
-  ![image](https://cloud.githubusercontent.com/assets/6803791/15509134/03aa71ae-2205-11e6-94be-a1a73a4cd7fe.png)  
+5. Build the project using `Debug`:
   - right on the project in the solution explorer (usually located in the right frame), select `Build`
   - then switch to `Release` mode and build it again
   - *NOTE:* both actions may take several minutes depending on your hardware performance.
