@@ -68,9 +68,10 @@ _Note:_ Replace `<YOUR_VS_VERSION>` with the related VS Studio version you compi
 
 - Add variable `WXWIN` to environment variables, pointing to your opencv directory, e. g. `C:\wxWidgets-3.1.4`
 
-### Compile Open Img Annotator
+## Compile and Run Open Img Annotator
 
 1. Clone repository to your local drive and cd to it
 1. Open the solution `open-img-annotator.sln` using `MS Visual Studio` or a related program
 1. Select `Release` and click `Compile`
 1. If the compilation process suceeds, you will find an executable file in `<YOUR-DRIVE>\open-img-annotator\x64\Release` which starts the application.
+1. Run the executable.
