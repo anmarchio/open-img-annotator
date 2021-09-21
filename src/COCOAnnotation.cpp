@@ -1,6 +1,7 @@
+#include "pch.h"
 #include "COCOAnnotation.h"
 
-void getBboxAndAreaFromPolygon(wxImage image, wxPointList* points, vector<double>* bbox, double* area)
+void COCOAnnotation::getBboxAndAreaFromPolygon(wxImage image, wxPointList* points, vector<double>* bbox, double* area)
 {	
 	Mat tmpImg = Mat(image.GetHeight(), image.GetWidth(), CV_8UC1);
 	for (size_t i = 0; i < points->GetCount(); i++)
@@ -15,9 +16,9 @@ void getBboxAndAreaFromPolygon(wxImage image, wxPointList* points, vector<double
 	bb.insert(it_bb, double(rect.y));
 	bb.insert(it_bb, double(rect.width));
 	bb.insert(it_bb, double(rect.height));
-	*bbox = bb;
+	bbox = &bb;
 
-	*area = rect.area;
+	*area = rect.area * 1.0;
 }
 
 /**

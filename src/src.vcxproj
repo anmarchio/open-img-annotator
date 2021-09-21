@@ -166,11 +166,12 @@
     <ClInclude Include="MovableObject.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PolygonShape.h" />
-    <ClInclude Include="Project.h" />
+    <ClInclude Include="COCOAnnotation.h" />
     <ClInclude Include="SuperPixelMask.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="COCOAnnotation.cpp" />
     <ClCompile Include="DrawLine.cpp" />
     <ClCompile Include="ImageLabelWindow.cpp" />
     <ClCompile Include="MainWindowApp.cpp" />

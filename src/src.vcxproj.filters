@@ -39,7 +39,7 @@
     <ClInclude Include="utils.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="Project.h">
+    <ClInclude Include="COCOAnnotation.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
@@ -63,6 +63,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="SuperPixelMask.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="COCOAnnotation.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
