@@ -8,6 +8,8 @@
 
 class PolygonShape
 {
+private:
+
 public:
 	wxPointList* points;
 	int size;
