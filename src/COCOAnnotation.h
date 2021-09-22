@@ -53,7 +53,7 @@ class COCOAnnotation
 	 */
 	struct annotation {
 		int id;
-		bool iscroud;
+		bool iscrowd;
 		int image_id;
 		int category_id;
 		vector<double> segmentation;
@@ -96,6 +96,6 @@ private:
 public:
 	COCOAnnotation();
 
-	void toJson(wxImage currentImage, string imagePath, vector<PolygonShape> polygons);
+	string toJson(wxImage currentImage, string imagePath, vector<PolygonShape> polygons);
 	void deserializeFromJson();
 };

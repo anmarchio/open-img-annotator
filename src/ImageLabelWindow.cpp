@@ -23,6 +23,8 @@ ImageLabelWindow::ImageLabelWindow(wxFrame* parent,
 	long style)
 	: wxFrame(parent, id, title, pos, size, style)
 {
+	imgFilePath = file;
+	SetIcon(wxIcon(icon_xpm));
 	initializeValues(file, format);
 
 	//create FlexGridSizer
@@ -95,9 +97,9 @@ void ImageLabelWindow::RecreateToolbar(wxPanel* parent)
 		Tool_help,
 		Tool_exit,
 		Tool_superpixels,
+		Tool_icon,
 		Tool_Max,
 	};
-
 	wxBitmap toolBarBitmaps[Tool_Max];
 
 	#if USE_XPM_BITMAPS
@@ -317,8 +319,8 @@ void ImageLabelWindow::OnOpen(wxCommandEvent& event)
 void ImageLabelWindow::OnSave(wxCommandEvent& event)
 {
 	wxFileDialog
-		saveFileDialog(this, _("Save TXT file"), "", "",
-			"TXT files (*.txt)|*.txt", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+		saveFileDialog(this, _("Save JSON file"), "", "",
+			"JSON files (*.json)|*.json", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
 	if (saveFileDialog.ShowModal() == wxID_CANCEL)
 		return;
@@ -332,15 +334,7 @@ void ImageLabelWindow::OnSave(wxCommandEvent& event)
 	}
 	else
 	{
-		for (int i = 0; i < polygons.size(); i++)
-		{
-			for (size_t j = 0; j < polygons[i].points->size(); j++)
-			{
-				wxPoint* pt = polygons[i].points->operator[](j);
-				outputFile << pt->x << ";" << pt->y << ";";
-			}
-			outputFile << "\n";
-		}
+		outputFile << COCOAnnotation().toJson(image, imgFilePath.ToStdString(), polygons);
 	}
 	outputFile.close();
 }

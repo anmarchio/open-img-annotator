@@ -46,10 +46,10 @@ bool MyApp::OnInit()
 {	
 	if (!wxApp::OnInit())
 		return false;
-
+	
 	wxInitAllImageHandlers();
 
-	// Create the main frame window
+	// Create the main frame window	
 	ImageLabelWindow* frame = new ImageLabelWindow((wxFrame *)NULL,
 		path,
 		wxBITMAP_TYPE_ANY,
@@ -58,7 +58,7 @@ bool MyApp::OnInit()
 		wxPoint(100, 100), 
 		wxDefaultSize);
 
-	frame->Show(true);	
+	frame->Show(true);
 
 	return true;
 }

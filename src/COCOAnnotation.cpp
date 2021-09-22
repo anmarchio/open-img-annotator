@@ -3,22 +3,19 @@
 
 void COCOAnnotation::getBboxAndAreaFromPolygon(wxImage image, wxPointList* points, vector<double>* bbox, double* area)
 {	
-	Mat tmpImg = Mat(image.GetHeight(), image.GetWidth(), CV_8UC1);
+	std::vector<cv::Point> shape;
 	for (size_t i = 0; i < points->GetCount(); i++)
 	{
-		tmpImg.at<Vec3b>(Point(points->Item(i)->GetData()->x, points->Item(i)->GetData()->y)) = Vec3b(255, 255, 255);
+		shape.push_back(Point(points->Item(i)->GetData()->x, points->Item(i)->GetData()->y));
 	}
-	Rect rect = boundingRect(tmpImg);
+	Rect rect = cv::boundingRect(shape);
 	
-	vector<double> bb;
-	vector<double>::iterator it_bb = bb.begin();
-	bb.insert(it_bb, double(rect.x));
-	bb.insert(it_bb, double(rect.y));
-	bb.insert(it_bb, double(rect.width));
-	bb.insert(it_bb, double(rect.height));
-	bbox = &bb;
+	bbox->push_back(double(rect.x));
+	bbox->push_back(double(rect.y));
+	bbox->push_back(double(rect.width));
+	bbox->push_back(double(rect.height));
 
-	*area = rect.area * 1.0;
+	*area = float(rect.area());
 }
 
 /**
@@ -78,12 +75,12 @@ COCOAnnotation::COCOAnnotation()
 	it = categories.insert(it, cat);
 }
 
-void COCOAnnotation::toJson(wxImage currentImage, string imagePath, vector<PolygonShape> polygons)
+string COCOAnnotation::toJson(wxImage currentImage, string imagePath, vector<PolygonShape> polygons)
 {
 	image img = {
 		1,							// id
-		currentImage.GetWidth(),	// width
-		currentImage.GetHeight(),	// height
+		currentImage.IsOk() ? currentImage.GetWidth() : 0,	// width
+		currentImage.IsOk() ? currentImage.GetHeight() : 0,	// height
 		imagePath					// file_name
 	};
 
@@ -98,11 +95,10 @@ void COCOAnnotation::toJson(wxImage currentImage, string imagePath, vector<Polyg
 		};
 
 		vector<double> seg;
-		vector<double>::iterator it_seg = seg.begin();
 		for (size_t j = 0; j < polygons[i].points->GetCount(); j++)
 		{
-			seg.insert(it_seg, polygons[i].points->Item(j)->GetData()->x);
-			seg.insert(it_seg, polygons[i].points->Item(j)->GetData()->y);
+			seg.push_back(double(polygons[i].points->Item(j)->GetData()->x));
+			seg.push_back(double(polygons[i].points->Item(j)->GetData()->y));
 		}
 		anno.segmentation = seg;
 				
@@ -110,6 +106,98 @@ void COCOAnnotation::toJson(wxImage currentImage, string imagePath, vector<Polyg
 
 		it_anno = annotations.insert(it_anno, anno);
 	}
+
+	/**
+	COCO data format as given in
+	https://cocodataset.org/#format-data
+
+	{
+		"info": info,
+		"images": [image],
+		"annotations": [annotation],
+		"licenses": [license],
+	}
+
+	info{
+		"year": int,
+		"version": str,
+		"description": str,
+		"contributor": str,
+		"url": str,
+		"date_created": datetime,
+	}
+
+	image{
+		"id": int,
+		"width": int,
+		"height": int,
+		"file_name": str,
+		"license": int,
+		"flickr_url": str,
+		"coco_url": str,
+		"date_captured": datetime,
+	}
+
+	license{
+		"id": int,
+		"name": str,
+		"url": str,
+	}
+	*/
+	string json = "";
+
+	// file start, info and image tag
+	json = json + "{" +
+		"\"info\": {" +
+		"\"description\":\"" + project_info.description + "\"" +
+		"}," +
+		"\"images\": [{" +
+		"\"id\":" + to_string(img.id) + "," +
+		"\"width\":" + to_string(img.width) + "," +
+		"\"height\":" + to_string(img.height) + "," +
+		"\"file_name\":\"" + img.file_name + "\"" +
+		"}],";
+
+	// add annotations array
+	json = json + "\"annotations\": [";
+	for (size_t i = 0; i < annotations.size(); i++)
+	{
+		json = json + "{"
+			"\"id\":" + to_string(i) + "," +
+			"\"iscrowd\":" + to_string(annotations.at(i).iscrowd) + "," +
+			"\"image_id\":" + to_string(annotations.at(i).image_id) + "," +
+			"\"category_id\":\"" + to_string(annotations.at(i).category_id) + "\",";
+
+		json = json + "\"segmentation\":[[";
+		for(size_t j = 0; j < annotations.at(i).segmentation.size(); j++)
+		{ 
+			json = json + to_string(annotations.at(i).segmentation.at(j));
+			if (j < annotations.at(i).segmentation.size() - 1) {
+				json = json + ",";
+			}
+		}
+		json = json + "]],";
+
+
+		json = json + "\"bbox\":[";
+		json = json + to_string(annotations.at(i).bbox.at(0)) + ",";
+		json = json + to_string(annotations.at(i).bbox.at(1)) + ",";
+		json = json + to_string(annotations.at(i).bbox.at(2)) + ",";
+		json = json + to_string(annotations.at(i).bbox.at(3));
+		json = json + "],";
+
+		json = json + "\"area\":" + to_string(annotations.at(i).area) +
+			"}";
+	}
+	json = json + "],";
+
+	// add categories array
+	json = json + "\"categories\": [{"
+		"\"id\":" + to_string(categories.at(0).id) + "," +
+		"\"name\":\"" + categories.at(0).name + "\"" + 
+		"}]" +
+		"}";
+	return json;
 }
 
 void COCOAnnotation::deserializeFromJson()

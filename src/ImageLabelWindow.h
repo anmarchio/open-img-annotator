@@ -14,6 +14,7 @@
 #include "DrawLine.h"
 #include "PolygonShape.h"
 #include "SuperPixelMask.h"
+#include "COCOAnnotation.h"
 
 #define USE_XPM_BITMAPS 1
 
@@ -31,8 +32,9 @@
 #include "bitmaps/exit.xpm"
 #include "bitmaps/help.xpm"
 #include "bitmaps/superpixels.xpm"
-
 #endif 
+
+#include "bitmaps/icon.xpm"
 
 const int ID_SLIDER0 = 100;
 
