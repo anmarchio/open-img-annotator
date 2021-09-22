@@ -4,6 +4,7 @@
 BEGIN_EVENT_TABLE(ImageLabelWindow, wxPanel)
 EVT_MOTION(ImageLabelWindow::OnMouseMove)
 EVT_LEFT_DOWN(ImageLabelWindow::OnLeftMouseDown)
+EVT_KEY_DOWN(ImageLabelWindow::OnKeyDown)
 EVT_MENU(wxID_OPEN, ImageLabelWindow::OnOpen)
 EVT_MENU(wxID_SAVE, ImageLabelWindow::OnSave)
 EVT_MENU(wxID_HELP, ImageLabelWindow::OnAbout)
@@ -195,7 +196,6 @@ void ImageLabelWindow::OnSize(wxSizeEvent& event) {
 /////////////////////////////////////
 // Mouse Events for Drawing
 /////////////////////////////////////
-
 bool ImageLabelWindow::isInImageArea(wxPoint& position)
 {
 	if (position.y > getHeaderPanelHeight() &&
@@ -284,6 +284,9 @@ void ImageLabelWindow::OnKeyDown(wxKeyEvent& evt)
 		{
 			ReleaseMouse();
 			trackMouseMovement = false;
+			polygonFinished = true;
+			lines.clear();
+			Refresh();
 		}
 	}
 	evt.Skip();

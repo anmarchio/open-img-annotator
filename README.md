@@ -1,6 +1,26 @@
 # Open Image Annotator
 
-Open Image Annotator is a tiny, open source application that allows you to quickly annotate images using superpixels and polygons.
+**Open Image Annotator** is a tiny, open source application that allows you to quickly annotate images using superpixels and polygons.
+
+## Usage
+
+The application can be run as a regular desktop application on your system. The top row shows a toolbar with all regular program features:
+* **Open**: opens a file dialog, allows to select an image and displays it in the main panel. 
+* **Save**: opens a file save dialog that asks for a file name, exports the current annotations to COCO encoded JSON.
+* **About**: opens a message box dialog describing the program.
+* **Superpixels**: a togglable toolbar item that allows to move the slider below; for more details on superpixels see section below.
+* **Quit**: closes the program. In some cases, if a high res image was opened or a large amount of annotations was created, this may take up to one minute.
+
+## Superpixels
+
+Superpixels generally consist of a group of pixels. While regular image pixels represent the smallest unit of an image, a superpixel comprises a whole partition of an image. 
+In consequence, superpixels carry more information, e. g. the area size, extension and color depth and allow a more compact representation of an image. 
+Practically speaking, superpixels provide perceptual meaning which simplifies interpretation of segmentation steps.
+**Open Image Annotator** uses the SLIC implementation of _OpenCV contrib_ as documented in [OpenCV: Superpixels](https://docs.opencv.org/3.4/df/d6c/group__ximgproc__superpixel.html).
+
+The following sources provide more in depth information on superpixel algorithms: 
+* [Chair of Automation Technology at TU Chemnitz](https://www.tu-chemnitz.de/etit/proaut/en/research/superpixel.html)
+* [Darshita Jain on Medium](https://darshita1405.medium.com/superpixels-and-slic-6b2d8a6e4f08)
 
 ## Open, Build and Run on Windows
 

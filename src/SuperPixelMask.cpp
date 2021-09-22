@@ -123,9 +123,9 @@ int SuperPixelMask::getSuperpixelSLICContours(int region_size, wxImage &input_im
 	//int c = waitKey(1) & 0xff;
 	//if (c == 'q' || c == 'Q' || c == 27)
 	//	break;
-//}
+	//}
 
-// Write superpixel points to pointer superpixelLabels
+	// Write superpixel points to pointer superpixelLabels
 	for (int i = 0; i < contours.size(); i++)
 	{
 		PolygonShape* shp = new PolygonShape();
