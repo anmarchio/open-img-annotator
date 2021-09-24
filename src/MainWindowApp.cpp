@@ -40,7 +40,7 @@ wxIMPLEMENT_APP(MyApp);
 // implementation
 // ============================================================================
 
-const std::string path = "samples/road_tiny.jpg";
+const std::string path = "samples/symi_tiny.jpg";
 
 bool MyApp::OnInit()
 {	
